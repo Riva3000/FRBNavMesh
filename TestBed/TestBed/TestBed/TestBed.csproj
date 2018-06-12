@@ -114,6 +114,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataTypes\TileMapInfo.Generated.cs" />
     <Compile Include="FileAliases.Generated.cs" />
     <Compile Include="GlobalContent.Generated.cs" />
     <Compile Include="Performance\IEntityFactory.Generated.cs" />
@@ -137,6 +138,31 @@
     <Compile Include="StateInterpolation\Sinusoidal.cs" />
     <Compile Include="StateInterpolation\Tweener.cs" />
     <Compile Include="StateInterpolation\TweenerManager.cs" />
+    <Compile Include="TileCollisions\CollidableListVsTileShapeCollectionRelationship.cs" />
+    <Compile Include="TileCollisions\CollidableVsTileShapeCollectionRelationship.cs" />
+    <Compile Include="TileCollisions\CollisionManagerTileShapeCollectionExtensions.cs" />
+    <Compile Include="TileCollisions\TileShapeCollection.cs" />
+    <Compile Include="TileEntities\TileEntityInstantiator.cs" />
+    <Compile Include="TileGraphics\AbstractMapLayer.cs" />
+    <Compile Include="TileGraphics\AnimationChainContainer.cs" />
+    <Compile Include="TileGraphics\ExternalTileset.cs" />
+    <Compile Include="TileGraphics\LayeredTileMap.cs" />
+    <Compile Include="TileGraphics\LayeredTileMapAnimation.cs" />
+    <Compile Include="TileGraphics\MapDrawableBatch.cs" />
+    <Compile Include="TileGraphics\MapLayer.cs" />
+    <Compile Include="TileGraphics\MapTileset.cs" />
+    <Compile Include="TileGraphics\MapTilesetTile.cs" />
+    <Compile Include="TileGraphics\NamedValue.cs" />
+    <Compile Include="TileGraphics\ReducedTileMapInfo.cs" />
+    <Compile Include="TileGraphics\ReducedTileMapInfo.TiledMapSave.cs" />
+    <Compile Include="TileGraphics\TileAnimation.cs" />
+    <Compile Include="TileGraphics\TileAnimationFrame.cs" />
+    <Compile Include="TileGraphics\TiledMapSave.Conversion.cs" />
+    <Compile Include="TileGraphics\TiledMapSave.Serialization.cs" />
+    <Compile Include="TileGraphics\TiledMapToShapeCollectionConverter.cs" />
+    <Compile Include="TileGraphics\TileNodeNetworkCreator.cs" />
+    <Compile Include="TileGraphics\Tileset.cs" />
+    <Compile Include="TileGraphics\TilesetExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

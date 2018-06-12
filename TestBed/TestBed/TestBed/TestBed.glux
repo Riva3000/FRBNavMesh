@@ -22,12 +22,47 @@
     <RecordInitializeSegments>false</RecordInitializeSegments>
   </PerformanceSettingsSave>
   <IgnoredDirectories />
-  <CustomClasses />
+  <CustomClasses>
+    <CustomClassSave>
+      <CsvFilesUsingThis />
+      <RequiredProperties>
+        <InstructionSave>
+          <Type>bool</Type>
+          <Member>HasCollision</Member>
+        </InstructionSave>
+        <InstructionSave>
+          <Type>string</Type>
+          <Member>EntityToCreate</Member>
+        </InstructionSave>
+        <InstructionSave>
+          <Type>string</Type>
+          <Member>Name</Member>
+        </InstructionSave>
+        <InstructionSave>
+          <Type>System.Collections.Generic.List&lt;FlatRedBall.Content.AnimationChain.AnimationFrameSaveBase&gt;</Type>
+          <Member>EmbeddedAnimation</Member>
+        </InstructionSave>
+      </RequiredProperties>
+      <Name>TileMapInfo</Name>
+      <GenerateCode>true</GenerateCode>
+    </CustomClassSave>
+  </CustomClasses>
   <TranslatedFiles />
   <ApplyToFixedResolutionPlatforms>true</ApplyToFixedResolutionPlatforms>
   <ExternallyBuiltFileDirectory>../../</ExternallyBuiltFileDirectory>
   <PluginData>
-    <RequiredPlugins />
+    <RequiredPlugins>
+      <PluginRequirement>
+        <Name>tiledplugin</Name>
+        <Version>0.0</Version>
+        <VersionRequirement>EqualToOrNewerThan</VersionRequirement>
+      </PluginRequirement>
+      <PluginRequirement>
+        <Name>Tiled Plugin</Name>
+        <Version>1.3.3.0</Version>
+        <VersionRequirement>EqualToOrNewerThan</VersionRequirement>
+      </PluginRequirement>
+    </RequiredPlugins>
   </PluginData>
   <DisplaySettings>
     <Is2D>true</Is2D>
