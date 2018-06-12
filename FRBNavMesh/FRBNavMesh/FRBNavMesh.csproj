@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FlatRedBall">
+      <HintPath>..\..\TestBed\TestBed\TestBed\Libraries\Xna4Pc\Debug\FlatRedBall.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,7 +45,44 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Channel.cs" />
+    <Compile Include="ConversionTemp\Items.cs" />
+    <Compile Include="ConversionTemp\NotNeededException.cs" />
+    <Compile Include="NavGraph.cs" />
+    <Compile Include="NavMesh.cs" />
+    <Compile Include="NavMeshPlugin.cs" />
+    <Compile Include="NavPoly.cs" />
+    <Compile Include="PhaserLine.cs" />
+    <Compile Include="PhaserPolygon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RUtils.cs" />
+    <Compile Include="TileGraphics\AbstractMapLayer.cs" />
+    <Compile Include="TileGraphics\AnimationChainContainer.cs" />
+    <Compile Include="TileGraphics\ExternalTileset.cs" />
+    <Compile Include="TileGraphics\LayeredTileMap.cs" />
+    <Compile Include="TileGraphics\LayeredTileMapAnimation.cs" />
+    <Compile Include="TileGraphics\MapDrawableBatch.cs" />
+    <Compile Include="TileGraphics\MapLayer.cs" />
+    <Compile Include="TileGraphics\MapTileset.cs" />
+    <Compile Include="TileGraphics\MapTilesetTile.cs" />
+    <Compile Include="TileGraphics\NamedValue.cs" />
+    <Compile Include="TileGraphics\ReducedTileMapInfo.cs" />
+    <Compile Include="TileGraphics\ReducedTileMapInfo.TiledMapSave.cs" />
+    <Compile Include="TileGraphics\TileAnimation.cs" />
+    <Compile Include="TileGraphics\TileAnimationFrame.cs" />
+    <Compile Include="TileGraphics\TiledMapSave.Conversion.cs" />
+    <Compile Include="TileGraphics\TiledMapSave.Serialization.cs" />
+    <Compile Include="TileGraphics\TiledMapToShapeCollectionConverter.cs" />
+    <Compile Include="TileGraphics\TileNodeNetworkCreator.cs" />
+    <Compile Include="TileGraphics\Tileset.cs" />
+    <Compile Include="TileGraphics\TilesetExtensionMethods.cs" />
+    <Compile Include="Utils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\VisualStudio2015 Projects\RCommonFRB\RCommonFRB\RCommonFRB.csproj">
+      <Project>{99803d3c-8916-4fb7-8725-e0b13982e0d1}</Project>
+      <Name>RCommonFRB</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
