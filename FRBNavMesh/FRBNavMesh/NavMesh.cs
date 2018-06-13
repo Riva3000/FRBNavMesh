@@ -171,14 +171,17 @@ namespace FRBNavMesh
             // We have a path, so now time for the funnel algorithm
             Channel channel = new Channel();
             channel.Add(startPoint);
-            for (int i = 0; i < astarPath.Length - 1; i++) {
+            for (int i = 0; i < astarPath.Length - 1; i++)
+            {
                 NavPoly navPolygon = astarPath[i];
                 NavPoly nextNavPolygon = astarPath[i + 1];
 
                 // Find the portal
                 PhaserLine portal = null;
-                for (int j = 0; j < navPolygon.neighbors.Count; j++) {
-                    if (navPolygon.neighbors[j].id == nextNavPolygon.id) {
+                for (int j = 0; j < navPolygon.neighbors.Count; j++)
+                {
+                    if (navPolygon.neighbors[j].id == nextNavPolygon.id)
+                    {
                         portal = navPolygon.portals[j];
                     }
                 }

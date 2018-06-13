@@ -55,7 +55,7 @@ namespace FRBNavMesh
 
         public int id;
         AxisAlignedRectangle polygon;
-        public List<PhaserLine> edges;
+        public PhaserLine[] edges;
         public List<NavPoly> neighbors;
         public List<PhaserLine> portals;
         public Point centroid;
@@ -98,7 +98,7 @@ namespace FRBNavMesh
 
 
 
-
+        // -- Public methods
         public bool contains(Point point) {
             // Phaser's polygon check doesn't handle when a point is on one of the edges of the line. Note:
             // check numerical stability here. It would also be good to optimize this for different shapes.
@@ -106,8 +106,7 @@ namespace FRBNavMesh
         }
 
 
-
-        // jsastar methods
+        // -- jsastar (public) methods 
         public override string ToString()
         {
             return $"NavPoly(id: {this.id} at: {this.centroid})";
@@ -124,8 +123,7 @@ namespace FRBNavMesh
         }
 
 
-
-
+        // -- Private methods
         /// <summary>R: FIN. Maybe not needed.</summary>
         /// <returns>This NavPoly's AARect's all edges as array of Line-s.</returns>
         private PhaserLine[] _calculateEdges()
@@ -228,7 +226,12 @@ namespace FRBNavMesh
             return Math.Max(polygon.Top, polygon.Left);
         }
 
-        private bool _isPointOnEdge(Point point) {
+        /// <summary>R: Not needed. Not referenced anywhere.</summary>
+        private bool _isPointOnEdge(Point point)
+        {
+            // R:
+            throw new NotNeededException();
+
             /*foreach (var edge in this.edges) {
                 if (edge.pointOnSegment(point.x, point.y)) return true;
             }
