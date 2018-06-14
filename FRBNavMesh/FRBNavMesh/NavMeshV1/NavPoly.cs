@@ -49,11 +49,15 @@ namespace FRBNavMesh
         *   channel. Equivalent to having a string snaking through a hallway and then pulling it taut.
         */
 
-        public int Id;
-        AxisAlignedRectangle Polygon;
-        public PhaserLine[] Edges;
-        public List<NavPoly> Neighbors;
-        public List<PhaserLine> Portals;
+
+        // Debug color palette
+        readonly Color[] palette = { new Color(0x00, 0xa0, 0xb0), new Color(0x6a, 0x4a, 0x3c), new Color(0xc, 0xc33, 0x3f), new Color(0xeb, 0x68, 0x41), new Color(0xed, 0xc9, 0x51) };
+
+        public int id;
+        AxisAlignedRectangle polygon;
+        public PhaserLine[] edges;
+        public List<NavPoly> neighbors;
+        public List<PhaserLine> portals;
         public Point centroid;
         public float boundingRadius;
         int weight; // jsastar property
@@ -73,11 +77,11 @@ namespace FRBNavMesh
         */
         public NavPoly(int id, AxisAlignedRectangle polygon) {
             //this.game = game;
-            this.Id = id;
-            this.Polygon = polygon;
-            this.Edges = this._calculateEdges();
-            this.Neighbors = new List<NavPoly>();
-            this.Portals = new List<PhaserLine>();
+            this.id = id;
+            this.polygon = polygon;
+            this.edges = this._calculateEdges();
+            this.neighbors = new List<NavPoly>();
+            this.portals = new List<PhaserLine>();
 
             //this.centroid = this._calculateCentroid();
             this.centroid = new Point(polygon.X, polygon.Y);
@@ -86,7 +90,7 @@ namespace FRBNavMesh
 
             this.weight = 1; // jsastar property
 
-            int i = this.Id % palette.Length;
+            int i = this.id % palette.Length;
             this._color = palette[i];
         }
 
@@ -98,14 +102,14 @@ namespace FRBNavMesh
         public bool contains(Point point) {
             // Phaser's polygon check doesn't handle when a point is on one of the edges of the line. Note:
             // check numerical stability here. It would also be good to optimize this for different shapes.
-            return Polygon.IsPointOnOrInside(ref point); // || this._isPointOnEdge(point);
+            return polygon.IsPointOnOrInside(ref point); // || this._isPointOnEdge(point);
         }
 
 
         // -- jsastar (public) methods 
         public override string ToString()
         {
-            return $"NavPoly(id: {this.Id} at: {this.centroid})";
+            return $"NavPoly(id: {this.id} at: {this.centroid})";
         }
         public bool isWall() {
             return this.weight == 0;
@@ -189,13 +193,13 @@ namespace FRBNavMesh
             1 > > 2
             */
             // Left - top-left to bottom-left
-            edges[0] = new PhaserLine(Polygon.Left, Polygon.Top,    Polygon.Left, Polygon.Bottom);
+            edges[0] = new PhaserLine(polygon.Left, polygon.Top,    polygon.Left, polygon.Bottom);
             // Bottom - bottom-left to bottom-right
-            edges[1] = new PhaserLine(Polygon.Left, Polygon.Bottom,    Polygon.Right, Polygon.Bottom);
+            edges[1] = new PhaserLine(polygon.Left, polygon.Bottom,    polygon.Right, polygon.Bottom);
             // Right - bottom-right to top-right
-            edges[2] = new PhaserLine(Polygon.Right, Polygon.Bottom,    Polygon.Right, Polygon.Top);
+            edges[2] = new PhaserLine(polygon.Right, polygon.Bottom,    polygon.Right, polygon.Top);
             // Top - top-left to top-right
-            edges[3] = new PhaserLine(Polygon.Left, Polygon.Top,    Polygon.Right, Polygon.Top);
+            edges[3] = new PhaserLine(polygon.Left, polygon.Top,    polygon.Right, polygon.Top);
 
             return edges;
         }
@@ -219,7 +223,7 @@ namespace FRBNavMesh
             }
             return boundingRadius;*/
 
-            return Math.Max(Polygon.Top, Polygon.Left);
+            return Math.Max(polygon.Top, polygon.Left);
         }
 
         /// <summary>R: Not needed. Not referenced anywhere.</summary>
@@ -233,9 +237,9 @@ namespace FRBNavMesh
             }
             return false;*/
 
-            if ( ( (point.X >= Polygon.Left && point.X <= Polygon.Right) && (point.Y == Polygon.Top || point.Y == Polygon.Bottom) )
+            if ( ( (point.X >= polygon.Left && point.X <= polygon.Right) && (point.Y == polygon.Top || point.Y == polygon.Bottom) )
                  ||
-                 ( (point.Y <= Polygon.Top && point.Y >= Polygon.Bottom) && (point.X == Polygon.Left || point.X == Polygon.Right) ) )
+                 ( (point.Y <= polygon.Top && point.Y >= polygon.Bottom) && (point.X == polygon.Left || point.X == polygon.Right) ) )
                 return true;
 
             return false;

@@ -34,7 +34,7 @@ namespace FRBNavMesh
 
         public List<NavPoly> neighbors(NavPoly navPolygon)
         {
-            return navPolygon.neighbors;
+            return navPolygon.Neighbors;
         }
 
         public double navHeuristic(NavPoly navPolygon1, NavPoly navPolygon2)

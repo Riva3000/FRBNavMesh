@@ -45,13 +45,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Debug.cs" />
     <Compile Include="JavasciptAstar\Astar.cs" />
     <Compile Include="JavasciptAstar\Graph.cs" />
     <Compile Include="JavasciptAstar\GridNode.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="ConversionTemp\Items.cs" />
     <Compile Include="ConversionTemp\NotNeededException.cs" />
-    <Compile Include="NavGraph.cs" />
+    <Compile Include="NavMesh_To_JavasciptAstar\NavGraph.cs" />
     <Compile Include="NavMesh.cs" />
     <Compile Include="NavMeshPlugin.cs" />
     <Compile Include="NavPoly.cs" />
@@ -88,8 +89,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Docs\DataStructuresChart01.ddd" />
     <None Include="Docs\Library system and classes description.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

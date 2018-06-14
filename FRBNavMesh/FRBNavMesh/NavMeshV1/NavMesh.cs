@@ -182,11 +182,11 @@ namespace FRBNavMesh
 
                 // Find the portal
                 PhaserLine portal = null;
-                for (int j = 0; j < navPolygon.Neighbors.Count; j++)
+                for (int j = 0; j < navPolygon.neighbors.Count; j++)
                 {
-                    if (navPolygon.Neighbors[j].Id == nextNavPolygon.Id)
+                    if (navPolygon.neighbors[j].id == nextNavPolygon.id)
                     {
-                        portal = navPolygon.Portals[j];
+                        portal = navPolygon.portals[j];
                     }
                 }
 
@@ -241,9 +241,9 @@ namespace FRBNavMesh
                         continue;
 
                     // The are in range, so check each edge pairing
-                    foreach (var edge in navPoly.Edges)
+                    foreach (var edge in navPoly.edges)
                     {
-                        foreach (var otherEdge in otherNavPoly.Edges)
+                        foreach (var otherEdge in otherNavPoly.edges)
                         {
                             // If edges aren't collinear, not an option for connecting navpolys
                             if ( !Utils.areCollinear(edge, otherEdge) )
@@ -255,8 +255,8 @@ namespace FRBNavMesh
                                 continue;
 
                             // Connections are symmetric!
-                            navPoly.Neighbors.Add(otherNavPoly);
-                            otherNavPoly.Neighbors.Add(navPoly);
+                            navPoly.neighbors.Add(otherNavPoly);
+                            otherNavPoly.neighbors.Add(navPoly);
 
                             // Calculate the portal between the two polygons - this needs to be in
                             // counter-clockwise order, relative to each polygon
@@ -273,11 +273,11 @@ namespace FRBNavMesh
                             var d2 = Utils.angleDifference(edgeStartAngle, a2);
                             if (d1 < d2)
                             {
-                                navPoly.Portals.Add(new PhaserLine((float)p1.X, (float)p1.Y, (float)p2.X, (float)p2.Y));
+                                navPoly.portals.Add(new PhaserLine((float)p1.X, (float)p1.Y, (float)p2.X, (float)p2.Y));
                             }
                             else
                             {
-                                navPoly.Portals.Add(new PhaserLine((float)p2.X, (float)p2.Y, (float)p1.X, (float)p1.Y));
+                                navPoly.portals.Add(new PhaserLine((float)p2.X, (float)p2.Y, (float)p1.X, (float)p1.Y));
                             }
                         }
                     }
@@ -347,7 +347,7 @@ namespace FRBNavMesh
         {
             Point? closestProjection = null;
             var closestDistance = float.MaxValue;
-            foreach (var edge in navPoly.Edges) {
+            foreach (var edge in navPoly.edges) {
                 var projectedPoint = this._projectPointToEdge(point, edge);
                 //var d = point.distance(projectedPoint);
                 var d = (float)RCommonFRB.Geometry.Distance(ref point, ref projectedPoint);
