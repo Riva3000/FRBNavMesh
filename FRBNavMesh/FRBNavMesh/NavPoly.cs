@@ -75,7 +75,7 @@ namespace FRBNavMesh
         * 
         * @memberof NavPoly
         */
-        public NavPoly(None game, int id, AxisAlignedRectangle polygon) {
+        public NavPoly(int id, AxisAlignedRectangle polygon) {
             //this.game = game;
             this.id = id;
             this.polygon = polygon;

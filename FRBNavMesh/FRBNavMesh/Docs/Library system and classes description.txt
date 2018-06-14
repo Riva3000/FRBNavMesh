@@ -1,0 +1,46 @@
+﻿------- class NavMeshPlugin -------
+	buildMeshFromTiled
+	- loads Tiled editor tile map .tmx file
+	- finds chosen Object layer in it
+	- gets all AARects from that layer
+	- [ new NavMesh() ]
+		- creates NavMesh from them by passing them to NavMesh constructor
+	- (why?) stores the resulting NavMesh in List of NavMeshes
+	- returns resulting NavMesh
+
+------- class NavMesh -------
+	Represents a navigation mesh built from a series of polygons (now specificaly AARects).
+
+	functions:
+		[ constructor ] Creates NavMesh from List of AARects.
+			- Creates NavPoly from each AARect
+			- Assigns ID to that NavPoly
+			- [ _calculateNeighbors ]
+				- Finds neighbors for each NavPoly and puts them into NavPoly's neighbors List
+				- Finds portals between each neighbor NavPoly's and puts them into NavPoly's portals List
+			- [ new NavGraph( List<NavPoly> this._navPolygons ) ]
+				- Creates NavGraph
+					to export it's data to Astar-unerstandable format
+					and stores it in it's _graph var
+			
+		findPath
+			- finds path.
+					Using Astar.search()
+			- smooths path
+					By finding Channel-s
+					And calling Channel.stringPull()
+			- returns path as List of Points. Or null if path doesn't exist.
+
+
+------- class NavGraph -------
+	Graph for javascript-astar. It implements the functionality for astar.
+	Makes available for Astar:
+		List<NavPoly> nodes
+		List<NavPoly> neighbors()
+		double navHeuristic()
+
+
+
+------- class NavPoly -------
+	Node
+	..

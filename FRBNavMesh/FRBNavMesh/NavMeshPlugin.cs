@@ -59,7 +59,7 @@ namespace FRBNavMesh
 
             // Build the navmesh
             // R: FRB version v1 - not sure if right - vertices order may be important
-            var mesh = new NavMesh(null, objectLayer.AxisAlignedRectangles.ToList(), meshShrinkAmount);
+            var mesh = new NavMesh(objectLayer.AxisAlignedRectangles.ToList(), meshShrinkAmount);
             _navMeshes.Add(mesh);
             return mesh;
         }

@@ -25,7 +25,7 @@ namespace FRBNavMesh
     /// </summary>
     class NavMesh
     {
-        class LineAndPoint
+        class RLineAndPoint
         {
             public PhaserLine line;
             public Point point;
@@ -39,7 +39,7 @@ namespace FRBNavMesh
         /// <param name="polygons"></param>
         /// <param name="meshShrinkAmount">The amount (in pixels) that the navmesh has been
         /// shrunk around obstacles (a.k.a the amount obstacles have been expanded)</param>
-        public NavMesh(None game, List<AxisAlignedRectangle> polygons, int meshShrinkAmount = 0)
+        public NavMesh(List<AxisAlignedRectangle> polygons, int meshShrinkAmount = 0)
         {
             _meshShrinkAmount = meshShrinkAmount;
 
@@ -47,7 +47,7 @@ namespace FRBNavMesh
             _navPolygons = new List<NavPoly>();
             for (int i = 0; i < polygons.Count; i++)
             {
-                this._navPolygons.Add(new NavPoly(null, i, polygons[i]));
+                this._navPolygons.Add(new NavPoly(i, polygons[i]));
             }
 
             this._calculateNeighbors();
@@ -157,9 +157,13 @@ namespace FRBNavMesh
             }
 
             // Search!
-            NavPoly[] astarPath = jsastar.astar.search(
+            /*NavPoly[] astarPath = jsastar.astar.search(
                                     this._graph, startPoly, endPoly, 
                                     { heuristic: this._graph.navHeuristic }
+                                  );*/
+            NavPoly[] astarPath = Astar.Astar.search(
+                                        this._graph, startPoly, endPoly, 
+                                        new Astar.Astar.Options<NavPoly> { heuristic = this._graph.navHeuristic }
                                   );
 
             // While the start and end polygons may be valid, no path between them
@@ -286,12 +290,12 @@ namespace FRBNavMesh
         // Algorithm source: http://stackoverflow.com/a/17152247
         private Point[] _getSegmentOverlap(PhaserLine line1, PhaserLine line2) // returns bool ?
         {
-            var points = new LineAndPoint[]
+            var points = new RLineAndPoint[]
             {
-                new LineAndPoint { line = line1, point = line1.Start },
-                new LineAndPoint { line = line1, point = line1.End },
-                new LineAndPoint { line = line2, point = line2.Start },
-                new LineAndPoint { line = line2, point = line2.End }
+                new RLineAndPoint { line = line1, point = line1.Start },
+                new RLineAndPoint { line = line1, point = line1.End },
+                new RLineAndPoint { line = line2, point = line2.Start },
+                new RLineAndPoint { line = line2, point = line2.End }
             };
             /*points.sort(function(a, b) {
                 if (a.point.x < b.point.x) return -1;
