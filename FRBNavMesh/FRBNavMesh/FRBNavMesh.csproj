@@ -45,6 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="JavasciptAstar\Astar.cs" />
+    <Compile Include="JavasciptAstar\Graph.cs" />
+    <Compile Include="JavasciptAstar\GridNode.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="ConversionTemp\Items.cs" />
     <Compile Include="ConversionTemp\NotNeededException.cs" />

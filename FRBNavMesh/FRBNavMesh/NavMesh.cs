@@ -161,9 +161,9 @@ namespace FRBNavMesh
                                     this._graph, startPoly, endPoly, 
                                     { heuristic: this._graph.navHeuristic }
                                   );*/
-            NavPoly[] astarPath = Astar.Astar.search(
+            NavPoly[] astarPath = JavasciptAstar.Astar.search(
                                         this._graph, startPoly, endPoly, 
-                                        new Astar.Astar.Options<NavPoly> { heuristic = this._graph.navHeuristic }
+                                        new JavasciptAstar.Astar.Options<NavPoly> { heuristic = this._graph.navHeuristic }
                                   );
 
             // While the start and end polygons may be valid, no path between them
