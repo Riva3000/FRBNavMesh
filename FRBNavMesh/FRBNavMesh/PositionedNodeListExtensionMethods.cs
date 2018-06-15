@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FRBNavMesh;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ namespace FRBNavMesh
 {
     public static class PositionedNodeListExtensionMethods
     {
-        public static float PathDistanceSquared(this List<INode> path)
+        public static float PathDistanceSquared<TNode, TLink>(this List<TNode> path) where TNode : PositionedNode<TNode, TLink>
         {
             float total = 0;
 

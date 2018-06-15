@@ -17,7 +17,7 @@ namespace FRBNavMesh
     /// <summary>
     /// An object which has position properties 
     /// </summary>
-    public class PositionedNode<TLink, TNode> //: IStaticPositionable //, INameable
+    public class PositionedNode<TLink, TNode> : IStaticPositionable //, INameable
         where TLink : Link<TLink, TNode>, new()
         where TNode : PositionedNode<TLink, TNode>, new()
     {

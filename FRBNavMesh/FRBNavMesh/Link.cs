@@ -10,18 +10,18 @@ namespace FRBNavMesh
     /// Represents a one-way const-including path to a PositionedNode.
     /// </summary>
     #endregion
-    public class Link<TLink, TNode> // : /*ILink,*/ IEquatable<Link<TPositionedNode>>
+    public class Link<TLink, TNode> : IEquatable<TLink>
         where TLink : Link<TLink, TNode>, new()
         where TNode : PositionedNode<TLink, TNode>, new()
     {
         #region Fields
         protected bool mActive; 
 
-        private float mCost;
+        protected float mCost;
 
-        private TNode mNodeLinkingTo;
+        protected TNode mNodeLinkingTo;
 
-        private Line mPortal;
+        protected Line mPortal;
 
         #endregion
 
@@ -121,6 +121,10 @@ namespace FRBNavMesh
         {
             return this == other;
         }*/
+        public bool Equals(TLink other)
+        {
+            return this == other;
+        }
 
         #endregion
     }
