@@ -6,9 +6,9 @@ using System.Text;
 
 namespace FRBNavMesh
 {
-    public interface ILink : IEquatable<ILink>
+    public interface ILink<ITNode> //: IEquatable<ILink>
     {
-        IPositionedNode NodeLinkingTo { get; set; }
+        ITNode NodeLinkingTo { get; set; }
         Line Portal { get; }
         float Cost { get; set; }
         bool Active { get; set; }        

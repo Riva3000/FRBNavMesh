@@ -10,12 +10,12 @@ using System.Text;
 
 namespace FRBNavMesh
 {
-    public interface IPositionedNode : IStaticPositionable //, INameable
+    public interface INode<ITLink> : IStaticPositionable //, INameable
     {
         //* IStaticPositionable signatures don't have to be included here
 
         //string Name { get; set; }
-        ReadOnlyCollection<ILink> Links { get; }
+        ReadOnlyCollection<ITLink> Links { get; }
         bool Active { get; set; }
         int Id { get; }
         AxisAlignedRectangle Polygon { get; set; }
@@ -26,10 +26,10 @@ namespace FRBNavMesh
 
 
 
-        ILink GetLinkTo(IPositionedNode node);
-        bool IsLinkedTo(IPositionedNode node);
-        void LinkTo(IPositionedNode nodeToLinkTo);
-        void LinkTo(IPositionedNode nodeToLinkTo, float costTo);
+        ITLink GetLinkTo(INode<ITLink> node);
+        bool IsLinkedTo(INode<ITLink> node);
+        void LinkTo(INode<ITLink> nodeToLinkTo);
+        void LinkTo(INode<ITLink> nodeToLinkTo, float costTo);
         //void LinkTo(IPositionedNode nodeToLinkTo, float costTo, float costFrom);
 
     }

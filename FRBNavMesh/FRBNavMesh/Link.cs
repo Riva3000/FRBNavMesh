@@ -10,14 +10,15 @@ namespace FRBNavMesh
     /// Represents a one-way const-including path to a PositionedNode.
     /// </summary>
     #endregion
-    public class Link : ILink, IEquatable<Link>
+    public class Link<TPositionedNode> //: /*ILink,*/ IEquatable<Link<TPositionedNode>>
+        where TPositionedNode : PositionedNode<Link<TPositionedNode>>, new()
     {
         #region Fields
         protected bool mActive; 
 
         private float mCost;
 
-        private IPositionedNode mNodeLinkingTo;
+        private TPositionedNode mNodeLinkingTo;
 
         private Line mPortal;
 
@@ -52,7 +53,7 @@ namespace FRBNavMesh
         /// The destination PositionedNode.  The starting PositionedNode is not stored by the Link instance.
         /// </summary>
         #endregion
-        public IPositionedNode NodeLinkingTo
+        public TPositionedNode NodeLinkingTo
         {
             get { return mNodeLinkingTo; }
             set { mNodeLinkingTo = value; }
@@ -74,7 +75,7 @@ namespace FRBNavMesh
         /// <param name="nodeLinkingTo">The node to link to.</param>
         /// <param name="cost">The cost to travel the link.</param>
         #endregion
-        public Link(IPositionedNode nodeLinkingTo, float cost)
+        public Link(TPositionedNode nodeLinkingTo, float cost)
         {
             mNodeLinkingTo = nodeLinkingTo;
             mCost = cost;
@@ -95,15 +96,15 @@ namespace FRBNavMesh
 
         #region IEquatable<Link> Members
 
-        bool IEquatable<Link>.Equals(Link other)
+        /*bool IEquatable<Link>.Equals(Link<TPositionedNode> other)
         {
             return this == other;
         }
 
-        bool IEquatable<ILink>.Equals(ILink other)
+        bool IEquatable<ILink>.Equals(Link<TPositionedNode> other)
         {
             return this == other;
-        }
+        }*/
 
         #endregion
     }
