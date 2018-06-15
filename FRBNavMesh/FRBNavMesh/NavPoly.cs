@@ -51,9 +51,9 @@ namespace FRBNavMesh
 
         public int Id;
         AxisAlignedRectangle Polygon;
-        public PhaserLine[] Edges;
+        public SimpleLine[] Edges;
         public List<NavPoly> Neighbors;
-        public List<PhaserLine> Portals;
+        public List<SimpleLine> Portals;
         public Point centroid;
         public float boundingRadius;
         int weight; // jsastar property
@@ -77,7 +77,7 @@ namespace FRBNavMesh
             this.Polygon = polygon;
             this.Edges = this._calculateEdges();
             this.Neighbors = new List<NavPoly>();
-            this.Portals = new List<PhaserLine>();
+            this.Portals = new List<SimpleLine>();
 
             //this.centroid = this._calculateCentroid();
             this.centroid = new Point(polygon.X, polygon.Y);
@@ -86,8 +86,8 @@ namespace FRBNavMesh
 
             this.weight = 1; // jsastar property
 
-            int i = this.Id % palette.Length;
-            this._color = palette[i];
+            int i = this.Id % Debug.palette.Length;
+            this._color = Debug.palette[i];
         }
 
 
@@ -122,7 +122,7 @@ namespace FRBNavMesh
         // -- Private methods
         /// <summary>R: FIN. Maybe not needed.</summary>
         /// <returns>This NavPoly's AARect's all edges as array of Line-s.</returns>
-        private PhaserLine[] _calculateEdges()
+        private SimpleLine[] _calculateEdges()
         {
             /*// -- R: FRB version v1 - not efficient
             var points = this.polygon.points;
@@ -181,7 +181,7 @@ namespace FRBNavMesh
             edges.push(new Phaser.Line(first.x, first.y, last.x, last.y));
             return edges;
             */
-            var edges = new PhaserLine[4];
+            var edges = new SimpleLine[4];
             /*
             0 > > 3
             v     ^
@@ -189,13 +189,13 @@ namespace FRBNavMesh
             1 > > 2
             */
             // Left - top-left to bottom-left
-            edges[0] = new PhaserLine(Polygon.Left, Polygon.Top,    Polygon.Left, Polygon.Bottom);
+            edges[0] = new SimpleLine(Polygon.Left, Polygon.Top,    Polygon.Left, Polygon.Bottom);
             // Bottom - bottom-left to bottom-right
-            edges[1] = new PhaserLine(Polygon.Left, Polygon.Bottom,    Polygon.Right, Polygon.Bottom);
+            edges[1] = new SimpleLine(Polygon.Left, Polygon.Bottom,    Polygon.Right, Polygon.Bottom);
             // Right - bottom-right to top-right
-            edges[2] = new PhaserLine(Polygon.Right, Polygon.Bottom,    Polygon.Right, Polygon.Top);
+            edges[2] = new SimpleLine(Polygon.Right, Polygon.Bottom,    Polygon.Right, Polygon.Top);
             // Top - top-left to top-right
-            edges[3] = new PhaserLine(Polygon.Left, Polygon.Top,    Polygon.Right, Polygon.Top);
+            edges[3] = new SimpleLine(Polygon.Left, Polygon.Top,    Polygon.Right, Polygon.Top);
 
             return edges;
         }
@@ -219,7 +219,8 @@ namespace FRBNavMesh
             }
             return boundingRadius;*/
 
-            return Math.Max(Polygon.Top, Polygon.Left);
+            // wrong. AARect.Top etc. return absolute (world) coordinates of edges of the AARect: return Math.Max(Polygon.Top, Polygon.Left);
+            return Math.Max(Polygon.Width, Polygon.Left) / 2;
         }
 
         /// <summary>R: Not needed. Not referenced anywhere.</summary>

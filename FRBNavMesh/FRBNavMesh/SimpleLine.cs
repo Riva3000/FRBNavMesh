@@ -6,20 +6,38 @@ using System.Text;
 
 namespace FRBNavMesh
 {
-    class PhaserLine
+    public class SimpleLine
     {
         /// <summary></summary>
         /// <param name="x1">The x coordinate of the start of the line.</param>
         /// <param name="y1">The y coordinate of the start of the line.</param>
         /// <param name="x2">The x coordinate of the end of the line.</param>
         /// <param name="y2">The y coordinate of the end of the line.</param>
-        public PhaserLine(float x1 = 0, float y1 = 0, float x2 = 0, float y2 = 0)
+        public SimpleLine(float x1 = 0, float y1 = 0, float x2 = 0, float y2 = 0)
         {
             Start = new Point(x1, y1);
             End = new Point(x2, y2);
         }
 
+        /// <summary></summary>
+        /// <param name="x1">The x coordinate of the start of the line.</param>
+        /// <param name="y1">The y coordinate of the start of the line.</param>
+        /// <param name="x2">The x coordinate of the end of the line.</param>
+        /// <param name="y2">The y coordinate of the end of the line.</param>
+        public SimpleLine(double x1 = 0, double y1 = 0, double x2 = 0, double y2 = 0)
+        {
+            Start = new Point(x1, y1);
+            End = new Point(x2, y2);
+        }
 
+        /// <summary></summary>
+        /// <param name="start">Starting Point of line.</param>
+        /// <param name="end">End Point of line.</param>
+        public SimpleLine(Point start, Point end)
+        {
+            Start = start;
+            End = end;
+        }
 
 
         /// <summary>Gets the left-most point of this line.</summary>

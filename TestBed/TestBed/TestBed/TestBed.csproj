@@ -122,6 +122,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="Screens\ScreenMain.cs" />
+    <Compile Include="Screens\ScreenMain.Generated.cs">
+      <DependentUpon>ScreenMain.cs</DependentUpon>
+    </Compile>
     <Compile Include="Setup\CameraSetup.cs" />
     <Compile Include="StateInterpolation\Back.cs" />
     <Compile Include="StateInterpolation\Bounce.cs" />
@@ -154,7 +158,9 @@
     <Compile Include="TileGraphics\MapTilesetTile.cs" />
     <Compile Include="TileGraphics\NamedValue.cs" />
     <Compile Include="TileGraphics\ReducedTileMapInfo.cs" />
-    <Compile Include="TileGraphics\ReducedTileMapInfo.TiledMapSave.cs" />
+    <Compile Include="TileGraphics\ReducedTileMapInfo.TiledMapSave.cs">
+      <DependentUpon>ReducedTileMapInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="TileGraphics\TileAnimation.cs" />
     <Compile Include="TileGraphics\TileAnimationFrame.cs" />
     <Compile Include="TileGraphics\TiledMapSave.Conversion.cs" />
@@ -203,6 +209,14 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\VisualStudio2015 Projects\RCommonFRB\RCommonFRB\RCommonFRB.csproj">
+      <Project>{99803d3c-8916-4fb7-8725-e0b13982e0d1}</Project>
+      <Name>RCommonFRB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\FRBNavMesh\FRBNavMesh\FRBNavMesh.csproj">
+      <Project>{1e168005-b952-42b1-90d6-c2ce87e28a2c}</Project>
+      <Name>FRBNavMesh</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TestBedContent\TestBedContent.contentproj">
       <Project>{64B23BEF-DD26-4B81-AAA6-D9F46B0140B4}</Project>
       <Name>FlatRedBallXna4TemplateContent %28Content%29</Name>
@@ -211,7 +225,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Libraries\Xna4Pc\Release\" />
-    <Folder Include="Screens\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />

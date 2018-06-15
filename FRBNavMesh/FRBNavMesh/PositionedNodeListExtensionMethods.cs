@@ -8,7 +8,10 @@ namespace FRBNavMesh
 {
     public static class PositionedNodeListExtensionMethods
     {
-        public static float PathDistanceSquared<TNode, TLink>(this List<TNode> path) where TNode : PositionedNode<TNode, TLink>
+        public static float PathDistanceSquared<TNode>(this List<TNode> path) 
+            //where TNode : PositionedNode<TLink, TNode>
+            //where TLink : Link<TLink, TNode>
+            //where TNode : FlatRedBall.Math.IStaticPositionable
         {
             float total = 0;
 

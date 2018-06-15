@@ -10,9 +10,9 @@ namespace FRBNavMesh
     /// Represents a one-way const-including path to a PositionedNode.
     /// </summary>
     #endregion
-    public class Link<TLink, TNode> : IEquatable<TLink>
-        where TLink : Link<TLink, TNode>, new()
-        where TNode : PositionedNode<TLink, TNode>, new()
+    public class LinkBase<TLink, TNode> : IEquatable<TLink>
+        where TLink : LinkBase<TLink, TNode>, new()
+        where TNode : PositionedNodeBase<TLink, TNode>, new()
     {
         #region Fields
         protected bool mActive; 
@@ -21,12 +21,10 @@ namespace FRBNavMesh
 
         protected TNode mNodeLinkingTo;
 
-        protected Line mPortal;
-
+        protected SimpleLine mPortal;
         #endregion
 
         #region Properties
-
         public bool Active
         {
             get { return mActive; }
@@ -60,11 +58,11 @@ namespace FRBNavMesh
             set { mNodeLinkingTo = value; }
         }
 
-        public Line Portal
+        public SimpleLine Portal
         {
             get { return mPortal; }
+            set { mPortal = value; }
         }
-
         #endregion
 
         #region Methods
@@ -88,12 +86,13 @@ namespace FRBNavMesh
             mCost = cost;
             mActive = true; 
         }*/
-        public static TLink Create(TNode nodeLinkingTo, float cost)
+        public static TLink Create(TNode nodeLinkingTo, float cost, SimpleLine portal)
         {
             return new TLink
             {
                 mNodeLinkingTo = nodeLinkingTo,
                 mCost = cost,
+                mPortal = portal,
                 mActive = true,
             };
         }

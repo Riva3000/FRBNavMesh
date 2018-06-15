@@ -52,7 +52,7 @@ namespace FRBNavMesh
         /*
         * @private
         */
-        public static bool areCollinear(PhaserLine line1, PhaserLine line2, float errorMargin = 0.0001f) {
+        public static bool areCollinear(SimpleLine line1, SimpleLine line2, float errorMargin = 0.0001f) {
             // Figure out if the two lines are equal by looking at the area of the triangle formed
             // by their points
             double area1 = triarea2(line1.Start, line1.End, line2.Start);

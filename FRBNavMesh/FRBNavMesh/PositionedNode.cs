@@ -17,15 +17,19 @@ namespace FRBNavMesh
     /// <summary>
     /// An object which has position properties 
     /// </summary>
-    public class PositionedNode<TLink, TNode> : IStaticPositionable //, INameable
-        where TLink : Link<TLink, TNode>, new()
-        where TNode : PositionedNode<TLink, TNode>, new()
+    public class PositionedNodeBase<TLink, TNode> : IStaticPositionable //, INameable
+        where TLink : LinkBase<TLink, TNode>, new()
+        where TNode : PositionedNodeBase<TLink, TNode>, new()
     {
         #region Fields
 
         //string mName;
 
-        public Vector3 Position;
+        public Vector3 Position
+        {
+            get { return mPolygon.Position; }
+            //private set { mPolygon.Position = value; }
+        }
 
         // made internal for speed boosts
         protected internal List<TLink> mLinks = new List<TLink>();
@@ -35,20 +39,16 @@ namespace FRBNavMesh
 
         public AStarState AStarState;
 
-        #region XML Docs
         /// <summary>
         /// The node that links to this node.  This is reset every time the 
         /// containing NodeNetwork searches for a path.
         /// </summary>
-        #endregion
         protected internal TNode mParentNode;
 
-        #region XML Docs
         /// <summary>
         /// The cost to get to this node from the start node.  This variable is
         /// set when the containing NodeNetwork searches for a path.
         /// </summary>
-        #endregion
         protected internal float mCostToGetHere;
 
         /// <summary>
@@ -57,12 +57,23 @@ namespace FRBNavMesh
         /// Update February 10, 2013
         /// Nodes should always start 
         /// out as active.  
-        private bool mActive = true;
+        protected bool mActive = true;
 
-        private int mId;
-        private AxisAlignedRectangle mPolygon;
+        // -- NavMesh
+        protected int mId;
+        protected AxisAlignedRectangle mPolygon;
 
-        private Line[] mEdges;
+        //protected SimpleLine[] mEdges;
+        //protected SimpleLine mLeftEdge
+
+        private SimpleLine _EdgeLeft;
+        public SimpleLine EdgeLeft { get { return _EdgeLeft; } }
+        private SimpleLine _EdgeRight;
+        public SimpleLine EdgeRight { get { return _EdgeRight; } }
+        private SimpleLine _EdgeTop;
+        public SimpleLine EdgeTop { get { return _EdgeTop; } }
+        private SimpleLine _EdgeBottom;
+        public SimpleLine EdgeBottom { get { return _EdgeBottom; } }
         #endregion
 
         #region Properties
@@ -80,12 +91,10 @@ namespace FRBNavMesh
             get { return mCostToGetHere; }
         }
 
-        #region XML Docs
         /// <summary>
         /// The Node's name.  Mainly used for saving NodeNetworks since saved Links reference
         /// PositionedNodes by name.
         /// </summary>
-        #endregion
         /*public string Name
         {
             get
@@ -98,59 +107,52 @@ namespace FRBNavMesh
             }
         }*/
 
-        #region XML Docs
         /// <summary>
         /// The X position of the PositionedNode.
         /// </summary>
-        #endregion
         public float X
         {
             get
             {
-                return Position.X;
+                return mPolygon.Position.X;
             }
             set
             {
-                Position.X = value ;
+                mPolygon.Position.X = value ;
             }
         }
 
 
-        #region XML Docs
         /// <summary>
         /// The Y position of the PositionedNode.
         /// </summary>
-        #endregion
         public float Y
         {
             get
             {
-                return Position.Y;
+                return mPolygon.Position.Y;
             }
             set
             {
-                Position.Y = value; ;
+                mPolygon.Position.Y = value; ;
             }
         }
 
-        #region XMl Docs
         /// <summary>
         /// The Z position of the PositionedNode.
         /// </summary>
-        #endregion
         public float Z
         {
             get
             {
-                return Position.Z;
+                return mPolygon.Position.Z;
             }
             set
             {
-                Position.Z = value ;
+                mPolygon.Position.Z = value ;
             }
         }
 
-        #region XML Docs
         /// <summary>
         /// The links belonging to this PositionedNode.
         /// </summary>
@@ -159,7 +161,6 @@ namespace FRBNavMesh
         /// Links are one-way and PositionedNodes that this links to do not necessarily contain
         /// Links back to this.
         /// </remarks>
-        #endregion
         public ReadOnlyCollection<TLink> Links
         {
             get { return mLinksReadOnly; }
@@ -174,6 +175,7 @@ namespace FRBNavMesh
             set { mActive = value; }
         }
 
+        // -- NavMesh
         public int Id { get { return mId; } }
 
         public AxisAlignedRectangle Polygon
@@ -182,7 +184,7 @@ namespace FRBNavMesh
             set { mPolygon = value; }
         }
 
-        public Line[] Edges { get { return mEdges; } }
+        //public SimpleLine[] Edges { get { return mEdges; } }
         #endregion
 
 
@@ -191,18 +193,32 @@ namespace FRBNavMesh
 
 
 
-        #region Methods
+        #region --- Methods
 
-        #region XML Docs
-        /// <summary>
-        /// Creates a new PositionedNode.
-        /// </summary>
-        #endregion
-        public PositionedNode()
+        /// <summary>Creates a new PositionedNode.</summary>
+        public PositionedNodeBase()
         {
             mLinksReadOnly = new ReadOnlyCollection<TLink>(mLinks);
         }
 
+        /// <summary>Creates a new PositionedNode.</summary>
+        public static TNode Create(int id, AxisAlignedRectangle polygon)
+        {
+            var node = new TNode
+            {
+                mId = id,
+                mPolygon = polygon,
+                //mActive = true,
+            };
+
+            // Assign edges
+            node._CalculateEdges();
+
+            return node;
+        }
+
+
+        // --- Links
         #region XML Docs
         /// <summary>
         /// Disconnects all Links between this and the argument node.
@@ -230,19 +246,6 @@ namespace FRBNavMesh
             }
         }
 
-        public TNode Clone()
-        {
-            TNode newNode = (TNode)this.MemberwiseClone();
-
-            newNode.mLinks = new List<TLink>();
-            newNode.mLinksReadOnly = new ReadOnlyCollection<TLink>(newNode.mLinks);
-            newNode.mParentNode = null;
-            newNode.mCostToGetHere = 0;
-
-            return newNode;
-        }
-
-
         public TLink GetLinkTo(TNode node)
         {
             foreach (TLink link in mLinks)
@@ -254,7 +257,6 @@ namespace FRBNavMesh
             }
             return null;
         }
-
 
         #region XML Docs
         /// <summary>
@@ -279,15 +281,17 @@ namespace FRBNavMesh
             return false;
         }
 
-
-        
-
-
-        public void LinkTo(TNode nodeToLinkTo)
+        public void LinkTo(TNode nodeToLinkTo, SimpleLine portal)
         {
+#if DEBUG
+			if (nodeToLinkTo == this)
+			{
+				throw new ArgumentException("Cannot have a node link to itself");
+			}
+#endif
             float distanceToTravel = (Position - nodeToLinkTo.Position).Length();
 
-            LinkTo(nodeToLinkTo, distanceToTravel);
+            LinkTo(nodeToLinkTo, distanceToTravel, portal);
         }
 
         #region XML Docs
@@ -302,9 +306,9 @@ namespace FRBNavMesh
         /// <param name="nodeToLinkTo">The other PositionedNode to create Links between.</param>
         /// <param name="costTo">The cost to travel between this and the argument nodeToLinkTo.</param>
         #endregion
-        public void LinkTo(TNode nodeToLinkTo, float costTo)
+        public void LinkTo(TNode nodeToLinkTo, float costTo, SimpleLine portal)
         {
-            LinkTo(nodeToLinkTo, costTo, costTo);
+            LinkTo(nodeToLinkTo, costTo, costTo, portal);
         }
 
         #region XML Docs
@@ -320,13 +324,11 @@ namespace FRBNavMesh
         /// <param name="costTo">The cost to travel from this to the argument nodeToLinkTo.</param>
         /// <param name="costFrom">The cost to travel from the nodeToLinkTo back to this.</param>
         #endregion
-        public void LinkTo(TNode nodeToLinkTo, float costTo, float costFrom)
+        public void LinkTo(TNode nodeToLinkTo, float costTo, float costFrom, SimpleLine portal)
         {
 #if DEBUG
 			if (nodeToLinkTo == this)
-			{
 				throw new ArgumentException("Cannot have a node link to itself");
-			}
 #endif
             bool updated = false;
 
@@ -335,6 +337,7 @@ namespace FRBNavMesh
                 if (mLinks[i].NodeLinkingTo == nodeToLinkTo)
                 {
                     mLinks[i].Cost = costTo;
+                    mLinks[i].Portal = portal;
                     updated = true;
                     break;
                 }
@@ -342,7 +345,7 @@ namespace FRBNavMesh
             if (!updated)
             {
                 //mLinks.Add(new TLink(nodeToLinkTo, costTo));
-                mLinks.Add( Link<TLink, TNode>.Create(nodeToLinkTo, costTo) );
+                mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo, portal) );
             }
 
             // Now do the same for the other node
@@ -352,6 +355,7 @@ namespace FRBNavMesh
                 if (nodeToLinkTo.mLinks[i].NodeLinkingTo == this)
                 {
                     nodeToLinkTo.mLinks[i].Cost = costFrom;
+                    nodeToLinkTo.mLinks[i].Portal = portal;
                     updated = true;
                     break;
                 }
@@ -359,7 +363,7 @@ namespace FRBNavMesh
             if (!updated)
             {
                 //nodeToLinkTo.mLinks.Add(new TLink(this, costFrom));
-                nodeToLinkTo.mLinks.Add( Link<TLink, TNode>.Create(this as TNode, costFrom) );
+                nodeToLinkTo.mLinks.Add( LinkBase<TLink, TNode>.Create(this as TNode, costFrom, portal) );
             }
         }
 
@@ -375,7 +379,7 @@ namespace FRBNavMesh
         /// <param name="nodeToLinkTo">The PositionedNode to create a link to.</param>
         /// <param name="costTo">The cost to travel from this to the argument nodeToLinkTo.</param>
         #endregion
-        public void LinkToOneWay(TNode nodeToLinkTo, float costTo)
+        public void LinkToOneWay(TNode nodeToLinkTo, float costTo, SimpleLine portal)
         {
             foreach (TLink link in mLinks)
             {
@@ -386,7 +390,21 @@ namespace FRBNavMesh
                 }
             }
 
-            mLinks.Add( Link<TLink, TNode>.Create(nodeToLinkTo, costTo) );
+            mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo, portal) );
+        }
+        // --- Links END
+
+        // --- Other
+        public TNode Clone()
+        {
+            TNode newNode = (TNode)this.MemberwiseClone();
+
+            newNode.mLinks = new List<TLink>();
+            newNode.mLinksReadOnly = new ReadOnlyCollection<TLink>(newNode.mLinks);
+            newNode.mParentNode = null;
+            newNode.mCostToGetHere = 0;
+
+            return newNode;
         }
 
         #region XML Docs
@@ -400,8 +418,68 @@ namespace FRBNavMesh
             //return mName + string.Format(" ({0},{1},{2})", X, Y, Z);
             return mId + string.Format(" ({0},{1},{2})", X, Y, Z);
         }
+        // --- Other END
 
-        #endregion
+        // --- NavMesh
+        /*protected void _CalculateEdges()
+        {
+            // Assign edges
+            mEdges = new SimpleLine[4];
+
+            //  0 > > 3
+            //  v     ^
+            //  v     ^
+            //  1 > > 2
+
+            // Left - top-left to bottom-left
+            mEdges[0] = new SimpleLine(mPolygon.Left, mPolygon.Top,    mPolygon.Left, mPolygon.Bottom);
+            // Bottom - bottom-left to bottom-right
+            mEdges[1] = new SimpleLine(mPolygon.Left, mPolygon.Bottom,    mPolygon.Right, mPolygon.Bottom);
+            // Right - bottom-right to top-right
+            mEdges[2] = new SimpleLine(mPolygon.Right, mPolygon.Bottom,    mPolygon.Right, mPolygon.Top);
+            // Top - top-left to top-right
+            mEdges[3] = new SimpleLine(mPolygon.Left, mPolygon.Top,    mPolygon.Right, mPolygon.Top);
+        }*/
+        protected void _CalculateEdges()
+        {
+            // Assign edges
+
+            //  0 > > 3
+            //  v     v
+            //  v     v
+            //  1 > > 2
+
+            // Left - top-left to bottom-left
+            _EdgeLeft = new SimpleLine(mPolygon.Left, mPolygon.Top,    mPolygon.Left, mPolygon.Bottom);
+            // Bottom - bottom-left to bottom-right
+            _EdgeBottom = new SimpleLine(mPolygon.Left, mPolygon.Bottom,    mPolygon.Right, mPolygon.Bottom);
+            // Right - bottom-right to top-right
+            _EdgeRight = new SimpleLine(mPolygon.Right, mPolygon.Top,    mPolygon.Right, mPolygon.Bottom);
+            // Top - top-left to top-right
+            _EdgeTop = new SimpleLine(mPolygon.Left, mPolygon.Top,    mPolygon.Right, mPolygon.Top);
+
+            /*Debug.ShowLine(_EdgeRight, Color.Green);
+            Debug.ShowLine(_EdgeLeft, Color.DarkGreen);
+            Debug.ShowLine(_EdgeTop, Color.Cyan);
+            Debug.ShowLine(_EdgeBottom, Color.DarkCyan);*/
+        }
+
+        /*protected static float _CalculateRadius(AxisAlignedRectangle rect)
+        {
+            //var boundingRadius = 0;
+            //foreach (Point point in this.polygon.points) {
+            //    var d = this.centroid.distance(point);
+            //    if (d > boundingRadius) boundingRadius = d;
+            //}
+            //return boundingRadius;
+
+            // wrong. AARect.Top etc. return absolute (world) coordinates of edges of the AARect: return Math.Max(Polygon.Top, Polygon.Left);
+            // wrong: return Math.Max(rect.Width, rect.Left) / 2;
+            // All vertices in rectangle have same distance to center
+            RCommonFRB.Geometry.Distance(rect.BoundingRadius)
+        }*/
+        // --- NavMesh END
+        #endregion --- Methods END
 
     }
 }

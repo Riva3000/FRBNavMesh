@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>FRBNavMesh</RootNamespace>
     <AssemblyName>FRBNavMesh</AssemblyName>
-    <TargetFrameworkVersion>v4.0.3</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -47,48 +47,19 @@
   <ItemGroup>
     <Compile Include="AStarState.cs" />
     <Compile Include="Debug.cs" />
-    <Compile Include="GenericsTests\LinkNamed.cs" />
-    <Compile Include="GenericsTests\LinkWithParams.cs" />
-    <Compile Include="GenericsTests\PositionedNodeNamed.cs" />
-    <Compile Include="GenericsTests\PositionedNodeWithParams.cs" />
-    <Compile Include="GenericsTests\TestWithParams.cs" />
-    <Compile Include="JavasciptAstar\Astar.cs" />
-    <Compile Include="JavasciptAstar\Graph.cs" />
-    <Compile Include="JavasciptAstar\GridNode.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="ConversionTemp\Items.cs" />
     <Compile Include="ConversionTemp\NotNeededException.cs" />
+    <Compile Include="GenericsTests\SpecificNodeAndLink.cs" />
     <Compile Include="Link.cs" />
     <Compile Include="NavMesh_To_JavasciptAstar\NavGraph.cs" />
     <Compile Include="NavMesh.cs" />
-    <Compile Include="NavMeshPlugin.cs" />
     <Compile Include="NavPoly.cs" />
-    <Compile Include="PhaserLine.cs" />
+    <Compile Include="SimpleLine.cs" />
     <Compile Include="PhaserPolygon.cs" />
     <Compile Include="PositionedNode.cs" />
-    <Compile Include="PositionedNodeListExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RUtils.cs" />
-    <Compile Include="TileGraphics\AbstractMapLayer.cs" />
-    <Compile Include="TileGraphics\AnimationChainContainer.cs" />
-    <Compile Include="TileGraphics\ExternalTileset.cs" />
-    <Compile Include="TileGraphics\LayeredTileMap.cs" />
-    <Compile Include="TileGraphics\LayeredTileMapAnimation.cs" />
-    <Compile Include="TileGraphics\MapDrawableBatch.cs" />
-    <Compile Include="TileGraphics\MapLayer.cs" />
-    <Compile Include="TileGraphics\MapTileset.cs" />
-    <Compile Include="TileGraphics\MapTilesetTile.cs" />
-    <Compile Include="TileGraphics\NamedValue.cs" />
-    <Compile Include="TileGraphics\ReducedTileMapInfo.cs" />
-    <Compile Include="TileGraphics\ReducedTileMapInfo.TiledMapSave.cs" />
-    <Compile Include="TileGraphics\TileAnimation.cs" />
-    <Compile Include="TileGraphics\TileAnimationFrame.cs" />
-    <Compile Include="TileGraphics\TiledMapSave.Conversion.cs" />
-    <Compile Include="TileGraphics\TiledMapSave.Serialization.cs" />
-    <Compile Include="TileGraphics\TiledMapToShapeCollectionConverter.cs" />
-    <Compile Include="TileGraphics\TileNodeNetworkCreator.cs" />
-    <Compile Include="TileGraphics\Tileset.cs" />
-    <Compile Include="TileGraphics\TilesetExtensionMethods.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -98,8 +69,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Docs\AARects edge overlaps.ddd" />
     <None Include="Docs\DataStructuresChart01.ddd" />
     <None Include="Docs\Library system and classes description.txt" />
+    <None Include="Docs\Notes and Calc tests.xls" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
