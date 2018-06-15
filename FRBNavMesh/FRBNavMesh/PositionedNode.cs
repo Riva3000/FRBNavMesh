@@ -14,13 +14,12 @@ using FlatRedBall.Math.Geometry;
 
 namespace FRBNavMesh
 {
-    // <TNode,TLink> : INode<TLink> where TLink : class, ILink<TNode>, new()
-
     /// <summary>
     /// An object which has position properties 
     /// </summary>
-    public class PositionedNode<TNode,TLink> : INode<TLink> //: IPositionedNode //IStaticPositionable, INameable
-        where TLink : class, ILink<TNode>, new() // new(PositionedNode<TLink> nodeLinkingTo, float cost)
+    public class PositionedNode<TLink, TNode> //: IStaticPositionable //, INameable
+        where TLink : Link<TLink, TNode>, new()
+        where TNode : PositionedNode<TLink, TNode>, new()
     {
         #region Fields
 
@@ -42,7 +41,7 @@ namespace FRBNavMesh
         /// containing NodeNetwork searches for a path.
         /// </summary>
         #endregion
-        protected internal PositionedNode<TNode,TLink> mParentNode;
+        protected internal TNode mParentNode;
 
         #region XML Docs
         /// <summary>
@@ -210,7 +209,7 @@ namespace FRBNavMesh
         /// </summary>
         /// <param name="node">The PositionedNode to break links between.</param>
         #endregion
-        public void BreakLinkBetween(PositionedNode<TLink> node)
+        public void BreakLinkBetween(TNode node)
         {
             for (int i = 0; i < node.mLinks.Count; i++)
             {
@@ -231,9 +230,9 @@ namespace FRBNavMesh
             }
         }
 
-        public PositionedNode<TLink> Clone()
+        public TNode Clone()
         {
-            PositionedNode<TLink> newNode = (PositionedNode<TLink>)this.MemberwiseClone();
+            TNode newNode = (TNode)this.MemberwiseClone();
 
             newNode.mLinks = new List<TLink>();
             newNode.mLinksReadOnly = new ReadOnlyCollection<TLink>(newNode.mLinks);
@@ -244,7 +243,7 @@ namespace FRBNavMesh
         }
 
 
-        public TLink GetLinkTo(PositionedNode<TLink> node)
+        public TLink GetLinkTo(TNode node)
         {
             foreach (TLink link in mLinks)
             {
@@ -268,7 +267,7 @@ namespace FRBNavMesh
         /// <param name="node">The argument to test linking.</param>
         /// <returns>Whether this PositionedNode links to the argument node.</returns>
         #endregion
-        public bool IsLinkedTo(PositionedNode<TLink> node)
+        public bool IsLinkedTo(TNode node)
         {
             foreach (TLink link in mLinks)
             {
@@ -284,7 +283,7 @@ namespace FRBNavMesh
         
 
 
-        public void LinkTo(PositionedNode<TLink> nodeToLinkTo)
+        public void LinkTo(TNode nodeToLinkTo)
         {
             float distanceToTravel = (Position - nodeToLinkTo.Position).Length();
 
@@ -303,7 +302,7 @@ namespace FRBNavMesh
         /// <param name="nodeToLinkTo">The other PositionedNode to create Links between.</param>
         /// <param name="costTo">The cost to travel between this and the argument nodeToLinkTo.</param>
         #endregion
-        public void LinkTo(PositionedNode<TLink> nodeToLinkTo, float costTo)
+        public void LinkTo(TNode nodeToLinkTo, float costTo)
         {
             LinkTo(nodeToLinkTo, costTo, costTo);
         }
@@ -321,7 +320,7 @@ namespace FRBNavMesh
         /// <param name="costTo">The cost to travel from this to the argument nodeToLinkTo.</param>
         /// <param name="costFrom">The cost to travel from the nodeToLinkTo back to this.</param>
         #endregion
-        public void LinkTo(PositionedNode<TLink> nodeToLinkTo, float costTo, float costFrom)
+        public void LinkTo(TNode nodeToLinkTo, float costTo, float costFrom)
         {
 #if DEBUG
 			if (nodeToLinkTo == this)
@@ -342,7 +341,8 @@ namespace FRBNavMesh
             }
             if (!updated)
             {
-                mLinks.Add(new TLink(nodeToLinkTo, costTo));
+                //mLinks.Add(new TLink(nodeToLinkTo, costTo));
+                mLinks.Add( Link<TLink, TNode>.Create(nodeToLinkTo, costTo) );
             }
 
             // Now do the same for the other node
@@ -358,7 +358,8 @@ namespace FRBNavMesh
             }
             if (!updated)
             {
-                nodeToLinkTo.mLinks.Add(new TLink(this, costFrom));
+                //nodeToLinkTo.mLinks.Add(new TLink(this, costFrom));
+                nodeToLinkTo.mLinks.Add( Link<TLink, TNode>.Create(this as TNode, costFrom) );
             }
         }
 
@@ -374,7 +375,7 @@ namespace FRBNavMesh
         /// <param name="nodeToLinkTo">The PositionedNode to create a link to.</param>
         /// <param name="costTo">The cost to travel from this to the argument nodeToLinkTo.</param>
         #endregion
-        public void LinkToOneWay(PositionedNode<TLink> nodeToLinkTo, float costTo)
+        public void LinkToOneWay(TNode nodeToLinkTo, float costTo)
         {
             foreach (TLink link in mLinks)
             {
@@ -385,7 +386,7 @@ namespace FRBNavMesh
                 }
             }
 
-            mLinks.Add(new TLink(nodeToLinkTo, costTo));
+            mLinks.Add( Link<TLink, TNode>.Create(nodeToLinkTo, costTo) );
         }
 
         #region XML Docs

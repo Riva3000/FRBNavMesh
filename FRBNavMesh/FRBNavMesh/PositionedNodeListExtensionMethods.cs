@@ -7,7 +7,7 @@ namespace FRBNavMesh
 {
     public static class PositionedNodeListExtensionMethods
     {
-        public static float PathDistanceSquared(this List<IPositionedNode> path)
+        public static float PathDistanceSquared(this List<INode> path)
         {
             float total = 0;
 

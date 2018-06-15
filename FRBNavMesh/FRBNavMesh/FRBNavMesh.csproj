@@ -47,8 +47,11 @@
   <ItemGroup>
     <Compile Include="AStarState.cs" />
     <Compile Include="Debug.cs" />
-    <Compile Include="ILink.cs" />
-    <Compile Include="IPositionedNode.cs" />
+    <Compile Include="GenericsTests\LinkNamed.cs" />
+    <Compile Include="GenericsTests\LinkWithParams.cs" />
+    <Compile Include="GenericsTests\PositionedNodeNamed.cs" />
+    <Compile Include="GenericsTests\PositionedNodeWithParams.cs" />
+    <Compile Include="GenericsTests\TestWithParams.cs" />
     <Compile Include="JavasciptAstar\Astar.cs" />
     <Compile Include="JavasciptAstar\Graph.cs" />
     <Compile Include="JavasciptAstar\GridNode.cs" />

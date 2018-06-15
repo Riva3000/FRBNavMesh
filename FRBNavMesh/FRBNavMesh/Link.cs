@@ -10,15 +10,16 @@ namespace FRBNavMesh
     /// Represents a one-way const-including path to a PositionedNode.
     /// </summary>
     #endregion
-    public class Link<TPositionedNode> //: /*ILink,*/ IEquatable<Link<TPositionedNode>>
-        where TPositionedNode : PositionedNode<Link<TPositionedNode>>, new()
+    public class Link<TLink, TNode> // : /*ILink,*/ IEquatable<Link<TPositionedNode>>
+        where TLink : Link<TLink, TNode>, new()
+        where TNode : PositionedNode<TLink, TNode>, new()
     {
         #region Fields
         protected bool mActive; 
 
         private float mCost;
 
-        private TPositionedNode mNodeLinkingTo;
+        private TNode mNodeLinkingTo;
 
         private Line mPortal;
 
@@ -53,7 +54,7 @@ namespace FRBNavMesh
         /// The destination PositionedNode.  The starting PositionedNode is not stored by the Link instance.
         /// </summary>
         #endregion
-        public TPositionedNode NodeLinkingTo
+        public TNode NodeLinkingTo
         {
             get { return mNodeLinkingTo; }
             set { mNodeLinkingTo = value; }
@@ -68,6 +69,12 @@ namespace FRBNavMesh
 
         #region Methods
 
+        /*
+        public Link()
+        {
+
+        }
+        
         #region XML Docs
         /// <summary>
         /// Creates a new Link.
@@ -75,11 +82,20 @@ namespace FRBNavMesh
         /// <param name="nodeLinkingTo">The node to link to.</param>
         /// <param name="cost">The cost to travel the link.</param>
         #endregion
-        public Link(TPositionedNode nodeLinkingTo, float cost)
+        public Link(TNode nodeLinkingTo, float cost)
         {
             mNodeLinkingTo = nodeLinkingTo;
             mCost = cost;
             mActive = true; 
+        }*/
+        public static TLink Create(TNode nodeLinkingTo, float cost)
+        {
+            return new TLink
+            {
+                mNodeLinkingTo = nodeLinkingTo,
+                mCost = cost,
+                mActive = true,
+            };
         }
 
         public override string ToString()
