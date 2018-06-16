@@ -5,6 +5,7 @@ using System.Text;
 using FlatRedBall.Graphics.Animation;
 using Microsoft.Xna.Framework.Graphics;
 using FlatRedBall.Math;
+using FlatRedBall;
 
 namespace FlatRedBall.TileGraphics
 {

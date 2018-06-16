@@ -38,7 +38,7 @@ namespace FRBNavMesh
                 {
                     left = p1,
                     right = p2.Value
-                } 
+                }
             );
         }
 

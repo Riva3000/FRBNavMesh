@@ -10,7 +10,7 @@ namespace FRBNavMesh
     /// Represents a one-way const-including path to a PositionedNode.
     /// </summary>
     #endregion
-    public class LinkBase<TLink, TNode> : IEquatable<TLink>
+    public abstract class LinkBase<TLink, TNode> : IEquatable<TLink>
         where TLink : LinkBase<TLink, TNode>, new()
         where TNode : PositionedNodeBase<TLink, TNode>, new()
     {
@@ -31,7 +31,6 @@ namespace FRBNavMesh
             set { mActive = value; }
         }
 
-        #region XML Docs
         /// <summary>
         /// The cost to travel the link.
         /// </summary>
@@ -40,18 +39,15 @@ namespace FRBNavMesh
         /// be changed to be any value to reflect different terrain, altitude, or other
         /// travelling costs.
         /// </remarks>
-        #endregion
         public float Cost
         {
             get { return mCost; }
             set { mCost = value; }
         }
 
-        #region XML Docs
         /// <summary>
         /// The destination PositionedNode.  The starting PositionedNode is not stored by the Link instance.
         /// </summary>
-        #endregion
         public TNode NodeLinkingTo
         {
             get { return mNodeLinkingTo; }

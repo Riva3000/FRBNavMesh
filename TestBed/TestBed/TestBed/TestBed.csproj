@@ -115,6 +115,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataTypes\TileMapInfo.Generated.cs" />
+    <Compile Include="Entities\MarkerCross.cs" />
+    <Compile Include="Entities\MarkerCross.Generated.cs">
+      <DependentUpon>MarkerCross.cs</DependentUpon>
+    </Compile>
     <Compile Include="FileAliases.Generated.cs" />
     <Compile Include="GlobalContent.Generated.cs" />
     <Compile Include="Performance\IEntityFactory.Generated.cs" />

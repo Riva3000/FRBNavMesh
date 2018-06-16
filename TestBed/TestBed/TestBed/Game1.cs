@@ -54,6 +54,12 @@ namespace TestBed
         
             FlatRedBallServices.InitializeFlatRedBall(this, graphics);
 
+            // R:
+            //  pixel perfect rendering
+            //FlatRedBallServices.GraphicsOptions.TextureFilter = TextureFilter.Point;
+            // show mouse cursor
+            FlatRedBallServices.Game.IsMouseVisible = true;
+
 			CameraSetup.SetupCamera(SpriteManager.Camera, graphics);
 			GlobalContent.Initialize();
 			FlatRedBall.Screens.ScreenManager.Start(typeof(TestBed.Screens.ScreenMain));

@@ -18,6 +18,11 @@
       <NamedObjects>
         <NamedObjectSave>
           <CustomProperty>
+            <Type>Microsoft.Xna.Framework.Color</Type>
+            <Member>Color</Member>
+            <ValueAsString>DarkBlue</ValueAsString>
+          </CustomProperty>
+          <CustomProperty>
             <Member>Points</Member>
             <ValueAsListOfVector2>
               <Vector2>
@@ -41,6 +46,11 @@
           <IndependentOfCamera>true</IndependentOfCamera>
         </NamedObjectSave>
         <NamedObjectSave>
+          <CustomProperty>
+            <Type>Microsoft.Xna.Framework.Color</Type>
+            <Member>Color</Member>
+            <ValueAsString>DarkBlue</ValueAsString>
+          </CustomProperty>
           <CustomProperty>
             <Member>Points</Member>
             <ValueAsListOfVector2>
@@ -67,6 +77,11 @@
         <NamedObjectSave>
           <CustomProperty>
             <Type>float</Type>
+            <Member>Z</Member>
+            <ValueAsFloat>10</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>float</Type>
             <Member>Width</Member>
             <ValueAsFloat>100</ValueAsFloat>
           </CustomProperty>
@@ -78,7 +93,7 @@
           <CustomProperty>
             <Type>Microsoft.Xna.Framework.Color</Type>
             <Member>Color</Member>
-            <ValueAsString>SkyBlue</ValueAsString>
+            <ValueAsString>Salmon</ValueAsString>
           </CustomProperty>
           <SourceType>FlatRedBallType</SourceType>
           <SourceFile />
@@ -98,6 +113,11 @@
           <CustomProperty>
             <Member>Y</Member>
             <ValueAsFloat>-100</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>float</Type>
+            <Member>Z</Member>
+            <ValueAsFloat>10</ValueAsFloat>
           </CustomProperty>
           <CustomProperty>
             <Type>float</Type>
@@ -135,6 +155,11 @@
           </CustomProperty>
           <CustomProperty>
             <Type>float</Type>
+            <Member>Z</Member>
+            <ValueAsFloat>10</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>float</Type>
             <Member>Width</Member>
             <ValueAsFloat>100</ValueAsFloat>
           </CustomProperty>
@@ -166,6 +191,11 @@
           <CustomProperty>
             <Member>Y</Member>
             <ValueAsFloat>55</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>float</Type>
+            <Member>Z</Member>
+            <ValueAsFloat>10</ValueAsFloat>
           </CustomProperty>
           <CustomProperty>
             <Type>float</Type>
@@ -203,6 +233,11 @@
           </CustomProperty>
           <CustomProperty>
             <Type>float</Type>
+            <Member>Z</Member>
+            <ValueAsFloat>10</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>float</Type>
             <Member>Width</Member>
             <ValueAsFloat>150</ValueAsFloat>
           </CustomProperty>
@@ -234,6 +269,11 @@
           <CustomProperty>
             <Member>Y</Member>
             <ValueAsFloat>120</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>float</Type>
+            <Member>Z</Member>
+            <ValueAsFloat>10</ValueAsFloat>
           </CustomProperty>
           <CustomProperty>
             <Type>float</Type>
@@ -271,6 +311,11 @@
           </CustomProperty>
           <CustomProperty>
             <Type>float</Type>
+            <Member>Z</Member>
+            <ValueAsFloat>10</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>float</Type>
             <Member>Width</Member>
             <ValueAsFloat>40</ValueAsFloat>
           </CustomProperty>
@@ -305,6 +350,11 @@
           </CustomProperty>
           <CustomProperty>
             <Type>float</Type>
+            <Member>Z</Member>
+            <ValueAsFloat>10</ValueAsFloat>
+          </CustomProperty>
+          <CustomProperty>
+            <Type>float</Type>
             <Member>Width</Member>
             <ValueAsFloat>100</ValueAsFloat>
           </CustomProperty>
@@ -331,7 +381,99 @@
       </NamedObjects>
     </ScreenSave>
   </Screens>
-  <Entities />
+  <Entities>
+    <EntitySave>
+      <Tags>
+        <string>GLUE</string>
+      </Tags>
+      <Source>GLUE</Source>
+      <CustomVariables>
+        <CustomVariable>
+          <Properties>
+            <PropertySave>
+              <Name>Type</Name>
+              <ValueAsString>float</ValueAsString>
+            </PropertySave>
+          </Properties>
+          <Name>X</Name>
+          <Type>float</Type>
+        </CustomVariable>
+        <CustomVariable>
+          <Properties>
+            <PropertySave>
+              <Name>Type</Name>
+              <ValueAsString>float</ValueAsString>
+            </PropertySave>
+          </Properties>
+          <Name>Y</Name>
+          <Type>float</Type>
+        </CustomVariable>
+        <CustomVariable>
+          <Properties>
+            <PropertySave>
+              <Name>Type</Name>
+              <ValueAsString>float</ValueAsString>
+            </PropertySave>
+          </Properties>
+          <Name>Z</Name>
+          <Type>float</Type>
+        </CustomVariable>
+      </CustomVariables>
+      <ImplementsIDrawableBatch>false</ImplementsIDrawableBatch>
+      <Name>Entities\MarkerCross</Name>
+      <NamedObjects>
+        <NamedObjectSave>
+          <CustomProperty>
+            <Member>Points</Member>
+            <ValueAsListOfVector2>
+              <Vector2>
+                <X>-6</X>
+                <Y>6</Y>
+              </Vector2>
+              <Vector2>
+                <X>6</X>
+                <Y>-6</Y>
+              </Vector2>
+            </ValueAsListOfVector2>
+          </CustomProperty>
+          <SourceType>FlatRedBallType</SourceType>
+          <SourceFile />
+          <SourceName />
+          <SourceClassType>Polygon</SourceClassType>
+          <InstanceName>Line1</InstanceName>
+          <HasPublicProperty>true</HasPublicProperty>
+          <AttachToContainer>true</AttachToContainer>
+          <GenerateTimedEmit>true</GenerateTimedEmit>
+          <IndependentOfCamera>true</IndependentOfCamera>
+        </NamedObjectSave>
+        <NamedObjectSave>
+          <CustomProperty>
+            <Member>Points</Member>
+            <ValueAsListOfVector2>
+              <Vector2>
+                <X>6</X>
+                <Y>6</Y>
+              </Vector2>
+              <Vector2>
+                <X>-6</X>
+                <Y>-6</Y>
+              </Vector2>
+            </ValueAsListOfVector2>
+          </CustomProperty>
+          <SourceType>FlatRedBallType</SourceType>
+          <SourceFile />
+          <SourceName />
+          <SourceClassType>Polygon</SourceClassType>
+          <InstanceName>Line2</InstanceName>
+          <HasPublicProperty>true</HasPublicProperty>
+          <AttachToContainer>true</AttachToContainer>
+          <GenerateTimedEmit>true</GenerateTimedEmit>
+          <IndependentOfCamera>true</IndependentOfCamera>
+        </NamedObjectSave>
+      </NamedObjects>
+      <Is2D>true</Is2D>
+    </EntitySave>
+  </Entities>
   <GlobalFiles />
   <GlobalContentSettingsSave>
     <LoadAsynchronously>false</LoadAsynchronously>

@@ -8,6 +8,8 @@ namespace FRBNavMesh
 {
     public class PositionedNode : PositionedNodeBase<Link, PositionedNode>
     {
+        public bool CheckedAsMain;
+        public bool CheckedAsOther;
     }
 
     public class Link : LinkBase<Link, PositionedNode>
