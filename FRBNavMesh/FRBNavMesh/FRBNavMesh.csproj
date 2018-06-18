@@ -53,11 +53,8 @@
     <Compile Include="ConversionTemp\NotNeededException.cs" />
     <Compile Include="GenericsTests\SpecificNodeAndLink.cs" />
     <Compile Include="LinkBaseGeneric.cs" />
-    <Compile Include="NavMesh_To_JavasciptAstar\NavGraph.cs" />
     <Compile Include="NavMesh.cs" />
-    <Compile Include="NavPoly.cs" />
     <Compile Include="SimpleLine.cs" />
-    <Compile Include="PhaserPolygon.cs" />
     <Compile Include="PositionedNodeBaseGeneric.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RUtils.cs" />
@@ -100,7 +97,9 @@
     <None Include="Docs\Library system and classes description.txt" />
     <None Include="Docs\Notes and Calc tests.xls" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="NavMeshV2\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

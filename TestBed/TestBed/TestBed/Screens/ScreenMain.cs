@@ -31,23 +31,12 @@ namespace TestBed.Screens
         Entities.MarkerCross _StartMarker;
         Entities.MarkerCross _GoalMarker;
 
-        List<Line> _PathLines;
+        List<Line> _FinalPathLines;
+        List<Line> _NodesPathLines;
 
 
 		void CustomInitialize()
 		{
-            var rects = new List<AxisAlignedRectangle>
-            {
-                mRect1Main,
-                mRect2InnerTouching,
-                mRect3InnerTouching,
-                mRect4InnerTouching,
-                mRect5InnerTouching,
-                mRect6OuterTouching,
-                mRect7OuterTouching,
-                mRect8OuterNotTouching,
-            };
-
             /*Circle circle;
             Text textObj;
             //Color color = Color.FromNonPremultiplied(100, )
@@ -64,14 +53,15 @@ namespace TestBed.Screens
                 textObj.HorizontalAlignment = HorizontalAlignment.Center;
             }*/
 
-            _MavMesh = new NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link>( rects );
+            _MavMesh = new NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link>( RectsList );
 
             _StartMarker = new Entities.MarkerCross();
             _GoalMarker = new Entities.MarkerCross { Color = Color.Green, Visible = false };
 
             _SetStart(-100f, -220f);
 
-            _PathLines = new List<Line>(30);
+            _FinalPathLines = new List<Line>(30);
+            _NodesPathLines = new List<Line>(10);
 
             // -------------------- Debug & tests
             /*// works
@@ -148,23 +138,68 @@ namespace TestBed.Screens
 
         private void _FindAndShowPath()
         {
+            // -- Find path
             List<FRBNavMesh.PositionedNode> nodePath;
             var pointsPath = _MavMesh.FindPath(_StartPos, _GoalPos, out nodePath);
+
 
             // -- Debug visuals
             // NavPolys
             foreach (var node in _MavMesh.NavPolygons)
+            {
                 node.Polygon.Color = Color.Salmon;
+            }
             if (nodePath != null)
             {
                 foreach (var node in nodePath)
                     node.Polygon.Color = Color.SkyBlue;
             }
             
-            // Path Lines
+            // - Node Path Lines
+            int nodePathLinesCount;
+            Line nodePathLine;
+            int i = 0;
+
+            if (pointsPath == null) // no path found
+            {
+                nodePathLinesCount = 0;
+            }
+            else
+            {
+                nodePathLinesCount = nodePath.Count - 1;
+            
+                // Add Lines
+                int linesMissing = nodePathLinesCount - _NodesPathLines.Count;
+                while (linesMissing > 0)
+                {
+                    nodePathLine = ShapeManager.AddLine();
+                    nodePathLine.Color = Debug.Gray96;
+                    _NodesPathLines.Add( nodePathLine );
+                    linesMissing--;
+                }
+
+                // Update Lines
+                for (; i < nodePathLinesCount; i++)
+                {
+                    nodePathLine = _NodesPathLines[i];
+                    nodePathLine.SetFromAbsoluteEndpoints(
+                        new Point3D(nodePath[i].X, nodePath[i].Y),
+                        new Point3D(nodePath[i+1].X, nodePath[i+1].Y)
+                    );
+                    nodePathLine.Visible = true;
+                }
+            }
+            
+            // Hide remaining Lines
+            for (; i < _NodesPathLines.Count; i++)
+            {
+                _NodesPathLines[i].Visible = false;
+            }
+
+            // - Final Path Lines
             int pathLinesCount;
             Line line;
-            int i = 0;
+            int j = 0;
 
             if (pointsPath == null) // no path found
             {
@@ -175,29 +210,29 @@ namespace TestBed.Screens
                 pathLinesCount = pointsPath.Count - 1;
             
                 // Add Lines
-                int linesMissing = pathLinesCount - _PathLines.Count;
+                int linesMissing = pathLinesCount - _FinalPathLines.Count;
                 while (linesMissing > 0)
                 {
-                    _PathLines.Add( ShapeManager.AddLine() );
+                    _FinalPathLines.Add( ShapeManager.AddLine() );
                     linesMissing--;
                 }
 
                 // Update Lines
-                for (; i < pathLinesCount; i++)
+                for (; j < pathLinesCount; j++)
                 {
-                    line = _PathLines[i];
+                    line = _FinalPathLines[j];
                     line.SetFromAbsoluteEndpoints(
-                        new Point3D(pointsPath[i].X, pointsPath[i].Y),
-                        new Point3D(pointsPath[i+1].X, pointsPath[i+1].Y)
+                        new Point3D(pointsPath[j].X, pointsPath[j].Y),
+                        new Point3D(pointsPath[j+1].X, pointsPath[j+1].Y)
                     );
                     line.Visible = true;
                 }
             }
             
             // Hide remaining Lines
-            for (; i < _PathLines.Count; i++)
+            for (; j < _FinalPathLines.Count; j++)
             {
-                _PathLines[i].Visible = false;
+                _FinalPathLines[j].Visible = false;
             }
         }
 

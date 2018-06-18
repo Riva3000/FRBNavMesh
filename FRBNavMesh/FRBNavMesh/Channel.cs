@@ -15,7 +15,7 @@ namespace FRBNavMesh
     class Channel
     {
         public List<Portal> portals;
-        public List<Point> path; // R: pts ?
+        public List<Point> Path; // R: pts ?
 
 
         public Channel()
@@ -42,7 +42,7 @@ namespace FRBNavMesh
             );
         }
 
-        public List<Point> stringPull()
+        public List<Point> StringPull()
         {
             var portals_ = this.portals;
             var pts = new List<Point>();
@@ -134,7 +134,7 @@ namespace FRBNavMesh
                 pts.Add(portals[portals.Count - 1].left);
             }
 
-            this.path = pts;
+            this.Path = pts;
 
             return pts; // List<Point> ?
         }

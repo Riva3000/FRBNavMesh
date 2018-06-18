@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using FlatRedBall.Math.Geometry;
+using FlatRedBall.Math;
 namespace TestBed.Screens
 {
     public partial class ScreenMain : FlatRedBall.Screens.Screen
@@ -41,6 +42,7 @@ namespace TestBed.Screens
                 mCenterV = value;
             }
         }
+        private FlatRedBall.Math.PositionedObjectList<FlatRedBall.Math.Geometry.AxisAlignedRectangle> RectsList;
         private FlatRedBall.Math.Geometry.AxisAlignedRectangle mRect1Main;
         public FlatRedBall.Math.Geometry.AxisAlignedRectangle Rect1Main
         {
@@ -63,6 +65,18 @@ namespace TestBed.Screens
             private set
             {
                 mRect2InnerTouching = value;
+            }
+        }
+        private FlatRedBall.Math.Geometry.AxisAlignedRectangle mRectOuterTouching2;
+        public FlatRedBall.Math.Geometry.AxisAlignedRectangle RectOuterTouching2
+        {
+            get
+            {
+                return mRectOuterTouching2;
+            }
+            private set
+            {
+                mRectOuterTouching2 = value;
             }
         }
         private FlatRedBall.Math.Geometry.AxisAlignedRectangle mRect3InnerTouching;
@@ -137,6 +151,30 @@ namespace TestBed.Screens
                 mRect8OuterNotTouching = value;
             }
         }
+        private FlatRedBall.Math.Geometry.AxisAlignedRectangle mRect8OuterNotTouching2;
+        public FlatRedBall.Math.Geometry.AxisAlignedRectangle Rect8OuterNotTouching2
+        {
+            get
+            {
+                return mRect8OuterNotTouching2;
+            }
+            private set
+            {
+                mRect8OuterNotTouching2 = value;
+            }
+        }
+        private FlatRedBall.Math.Geometry.AxisAlignedRectangle mRect6OuterTouching2;
+        public FlatRedBall.Math.Geometry.AxisAlignedRectangle Rect6OuterTouching2
+        {
+            get
+            {
+                return mRect6OuterTouching2;
+            }
+            private set
+            {
+                mRect6OuterTouching2 = value;
+            }
+        }
         public ScreenMain () 
         	: base ("ScreenMain")
         {
@@ -148,10 +186,14 @@ namespace TestBed.Screens
             mCenterH.Name = "mCenterH";
             mCenterV = new FlatRedBall.Math.Geometry.Polygon();
             mCenterV.Name = "mCenterV";
+            RectsList = new FlatRedBall.Math.PositionedObjectList<FlatRedBall.Math.Geometry.AxisAlignedRectangle>();
+            RectsList.Name = "RectsList";
             mRect1Main = new FlatRedBall.Math.Geometry.AxisAlignedRectangle();
             mRect1Main.Name = "mRect1Main";
             mRect2InnerTouching = new FlatRedBall.Math.Geometry.AxisAlignedRectangle();
             mRect2InnerTouching.Name = "mRect2InnerTouching";
+            mRectOuterTouching2 = new FlatRedBall.Math.Geometry.AxisAlignedRectangle();
+            mRectOuterTouching2.Name = "mRectOuterTouching2";
             mRect3InnerTouching = new FlatRedBall.Math.Geometry.AxisAlignedRectangle();
             mRect3InnerTouching.Name = "mRect3InnerTouching";
             mRect4InnerTouching = new FlatRedBall.Math.Geometry.AxisAlignedRectangle();
@@ -164,6 +206,10 @@ namespace TestBed.Screens
             mRect7OuterTouching.Name = "mRect7OuterTouching";
             mRect8OuterNotTouching = new FlatRedBall.Math.Geometry.AxisAlignedRectangle();
             mRect8OuterNotTouching.Name = "mRect8OuterNotTouching";
+            mRect8OuterNotTouching2 = new FlatRedBall.Math.Geometry.AxisAlignedRectangle();
+            mRect8OuterNotTouching2.Name = "mRect8OuterNotTouching2";
+            mRect6OuterTouching2 = new FlatRedBall.Math.Geometry.AxisAlignedRectangle();
+            mRect6OuterTouching2.Name = "mRect6OuterTouching2";
             
             
             PostInitialize();
@@ -179,12 +225,15 @@ namespace TestBed.Screens
             FlatRedBall.Math.Geometry.ShapeManager.AddPolygon(mCenterV);
             FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect1Main);
             FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect2InnerTouching);
+            FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRectOuterTouching2);
             FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect3InnerTouching);
             FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect4InnerTouching);
             FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect5InnerTouching);
             FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect6OuterTouching);
             FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect7OuterTouching);
             FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect8OuterNotTouching);
+            FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect8OuterNotTouching2);
+            FlatRedBall.Math.Geometry.ShapeManager.AddAxisAlignedRectangle(mRect6OuterTouching2);
             base.AddToManagers();
             AddToManagersBottomUp();
             CustomInitialize();
@@ -208,6 +257,7 @@ namespace TestBed.Screens
         {
             base.Destroy();
             
+            RectsList.MakeOneWay();
             if (CenterH != null)
             {
                 FlatRedBall.Math.Geometry.ShapeManager.Remove(CenterH);
@@ -216,38 +266,11 @@ namespace TestBed.Screens
             {
                 FlatRedBall.Math.Geometry.ShapeManager.Remove(CenterV);
             }
-            if (Rect1Main != null)
+            for (int i = RectsList.Count - 1; i > -1; i--)
             {
-                FlatRedBall.Math.Geometry.ShapeManager.Remove(Rect1Main);
+                FlatRedBall.Math.Geometry.ShapeManager.Remove(RectsList[i]);
             }
-            if (Rect2InnerTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.Remove(Rect2InnerTouching);
-            }
-            if (Rect3InnerTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.Remove(Rect3InnerTouching);
-            }
-            if (Rect4InnerTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.Remove(Rect4InnerTouching);
-            }
-            if (Rect5InnerTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.Remove(Rect5InnerTouching);
-            }
-            if (Rect6OuterTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.Remove(Rect6OuterTouching);
-            }
-            if (Rect7OuterTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.Remove(Rect7OuterTouching);
-            }
-            if (Rect8OuterNotTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.Remove(Rect8OuterNotTouching);
-            }
+            RectsList.MakeTwoWay();
             FlatRedBall.Math.Collision.CollisionManager.Self.Relationships.Clear();
             CustomDestroy();
         }
@@ -261,6 +284,7 @@ namespace TestBed.Screens
             CenterV.Color = Microsoft.Xna.Framework.Color.DarkBlue;
             FlatRedBall.Math.Geometry.Point[] CenterVPoints = new FlatRedBall.Math.Geometry.Point[] {new FlatRedBall.Math.Geometry.Point(0, 25), new FlatRedBall.Math.Geometry.Point(0, -25) };
             CenterV.Points = CenterVPoints;
+            RectsList.Add(Rect1Main);
             if (Rect1Main.Parent == null)
             {
                 Rect1Main.Z = 10f;
@@ -272,6 +296,7 @@ namespace TestBed.Screens
             Rect1Main.Width = 100f;
             Rect1Main.Height = 100f;
             Rect1Main.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(Rect2InnerTouching);
             if (Rect2InnerTouching.Parent == null)
             {
                 Rect2InnerTouching.X = 50f;
@@ -299,6 +324,35 @@ namespace TestBed.Screens
             Rect2InnerTouching.Width = 100f;
             Rect2InnerTouching.Height = 100f;
             Rect2InnerTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(RectOuterTouching2);
+            if (RectOuterTouching2.Parent == null)
+            {
+                RectOuterTouching2.X = -220f;
+            }
+            else
+            {
+                RectOuterTouching2.RelativeX = -220f;
+            }
+            if (RectOuterTouching2.Parent == null)
+            {
+                RectOuterTouching2.Y = -213f;
+            }
+            else
+            {
+                RectOuterTouching2.RelativeY = -213f;
+            }
+            if (RectOuterTouching2.Parent == null)
+            {
+                RectOuterTouching2.Z = 10f;
+            }
+            else
+            {
+                RectOuterTouching2.RelativeZ = 10f;
+            }
+            RectOuterTouching2.Width = 100f;
+            RectOuterTouching2.Height = 100f;
+            RectOuterTouching2.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(Rect3InnerTouching);
             if (Rect3InnerTouching.Parent == null)
             {
                 Rect3InnerTouching.X = -100f;
@@ -326,6 +380,7 @@ namespace TestBed.Screens
             Rect3InnerTouching.Width = 100f;
             Rect3InnerTouching.Height = 100f;
             Rect3InnerTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(Rect4InnerTouching);
             if (Rect4InnerTouching.Parent == null)
             {
                 Rect4InnerTouching.X = 60f;
@@ -353,6 +408,7 @@ namespace TestBed.Screens
             Rect4InnerTouching.Width = 20f;
             Rect4InnerTouching.Height = 30f;
             Rect4InnerTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(Rect5InnerTouching);
             if (Rect5InnerTouching.Parent == null)
             {
                 Rect5InnerTouching.X = -105f;
@@ -380,6 +436,7 @@ namespace TestBed.Screens
             Rect5InnerTouching.Width = 150f;
             Rect5InnerTouching.Height = 80f;
             Rect5InnerTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(Rect6OuterTouching);
             if (Rect6OuterTouching.Parent == null)
             {
                 Rect6OuterTouching.X = 70f;
@@ -407,21 +464,22 @@ namespace TestBed.Screens
             Rect6OuterTouching.Width = 200f;
             Rect6OuterTouching.Height = 100f;
             Rect6OuterTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(Rect7OuterTouching);
             if (Rect7OuterTouching.Parent == null)
             {
-                Rect7OuterTouching.X = -250f;
+                Rect7OuterTouching.X = -350f;
             }
             else
             {
-                Rect7OuterTouching.RelativeX = -250f;
+                Rect7OuterTouching.RelativeX = -350f;
             }
             if (Rect7OuterTouching.Parent == null)
             {
-                Rect7OuterTouching.Y = 24f;
+                Rect7OuterTouching.Y = 221f;
             }
             else
             {
-                Rect7OuterTouching.RelativeY = 24f;
+                Rect7OuterTouching.RelativeY = 221f;
             }
             if (Rect7OuterTouching.Parent == null)
             {
@@ -434,21 +492,22 @@ namespace TestBed.Screens
             Rect7OuterTouching.Width = 40f;
             Rect7OuterTouching.Height = 100f;
             Rect7OuterTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(Rect8OuterNotTouching);
             if (Rect8OuterNotTouching.Parent == null)
             {
-                Rect8OuterNotTouching.X = -100f;
+                Rect8OuterNotTouching.X = -320f;
             }
             else
             {
-                Rect8OuterNotTouching.RelativeX = -100f;
+                Rect8OuterNotTouching.RelativeX = -320f;
             }
             if (Rect8OuterNotTouching.Parent == null)
             {
-                Rect8OuterNotTouching.Y = -170f;
+                Rect8OuterNotTouching.Y = -150f;
             }
             else
             {
-                Rect8OuterNotTouching.RelativeY = -170f;
+                Rect8OuterNotTouching.RelativeY = -150f;
             }
             if (Rect8OuterNotTouching.Parent == null)
             {
@@ -461,6 +520,62 @@ namespace TestBed.Screens
             Rect8OuterNotTouching.Width = 100f;
             Rect8OuterNotTouching.Height = 200f;
             Rect8OuterNotTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(Rect8OuterNotTouching2);
+            if (Rect8OuterNotTouching2.Parent == null)
+            {
+                Rect8OuterNotTouching2.X = -100f;
+            }
+            else
+            {
+                Rect8OuterNotTouching2.RelativeX = -100f;
+            }
+            if (Rect8OuterNotTouching2.Parent == null)
+            {
+                Rect8OuterNotTouching2.Y = -170f;
+            }
+            else
+            {
+                Rect8OuterNotTouching2.RelativeY = -170f;
+            }
+            if (Rect8OuterNotTouching2.Parent == null)
+            {
+                Rect8OuterNotTouching2.Z = 10f;
+            }
+            else
+            {
+                Rect8OuterNotTouching2.RelativeZ = 10f;
+            }
+            Rect8OuterNotTouching2.Width = 100f;
+            Rect8OuterNotTouching2.Height = 200f;
+            Rect8OuterNotTouching2.Color = Microsoft.Xna.Framework.Color.Salmon;
+            RectsList.Add(Rect6OuterTouching2);
+            if (Rect6OuterTouching2.Parent == null)
+            {
+                Rect6OuterTouching2.X = -250f;
+            }
+            else
+            {
+                Rect6OuterTouching2.RelativeX = -250f;
+            }
+            if (Rect6OuterTouching2.Parent == null)
+            {
+                Rect6OuterTouching2.Y = 0f;
+            }
+            else
+            {
+                Rect6OuterTouching2.RelativeY = 0f;
+            }
+            if (Rect6OuterTouching2.Parent == null)
+            {
+                Rect6OuterTouching2.Z = 10f;
+            }
+            else
+            {
+                Rect6OuterTouching2.RelativeZ = 10f;
+            }
+            Rect6OuterTouching2.Width = 200f;
+            Rect6OuterTouching2.Height = 100f;
+            Rect6OuterTouching2.Color = Microsoft.Xna.Framework.Color.Salmon;
             FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue = oldShapeManagerSuppressAdd;
         }
         public virtual void AddToManagersBottomUp () 
@@ -478,37 +593,9 @@ namespace TestBed.Screens
             {
                 FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(CenterV);
             }
-            if (Rect1Main != null)
+            for (int i = RectsList.Count - 1; i > -1; i--)
             {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(Rect1Main);
-            }
-            if (Rect2InnerTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(Rect2InnerTouching);
-            }
-            if (Rect3InnerTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(Rect3InnerTouching);
-            }
-            if (Rect4InnerTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(Rect4InnerTouching);
-            }
-            if (Rect5InnerTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(Rect5InnerTouching);
-            }
-            if (Rect6OuterTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(Rect6OuterTouching);
-            }
-            if (Rect7OuterTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(Rect7OuterTouching);
-            }
-            if (Rect8OuterNotTouching != null)
-            {
-                FlatRedBall.Math.Geometry.ShapeManager.RemoveOneWay(Rect8OuterNotTouching);
+                FlatRedBall.Math.Geometry.ShapeManager.Remove(RectsList[i]);
             }
         }
         public virtual void AssignCustomVariables (bool callOnContainedElements) 
@@ -556,6 +643,33 @@ namespace TestBed.Screens
             Rect2InnerTouching.Width = 100f;
             Rect2InnerTouching.Height = 100f;
             Rect2InnerTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
+            if (RectOuterTouching2.Parent == null)
+            {
+                RectOuterTouching2.X = -220f;
+            }
+            else
+            {
+                RectOuterTouching2.RelativeX = -220f;
+            }
+            if (RectOuterTouching2.Parent == null)
+            {
+                RectOuterTouching2.Y = -213f;
+            }
+            else
+            {
+                RectOuterTouching2.RelativeY = -213f;
+            }
+            if (RectOuterTouching2.Parent == null)
+            {
+                RectOuterTouching2.Z = 10f;
+            }
+            else
+            {
+                RectOuterTouching2.RelativeZ = 10f;
+            }
+            RectOuterTouching2.Width = 100f;
+            RectOuterTouching2.Height = 100f;
+            RectOuterTouching2.Color = Microsoft.Xna.Framework.Color.Salmon;
             if (Rect3InnerTouching.Parent == null)
             {
                 Rect3InnerTouching.X = -100f;
@@ -666,19 +780,19 @@ namespace TestBed.Screens
             Rect6OuterTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
             if (Rect7OuterTouching.Parent == null)
             {
-                Rect7OuterTouching.X = -250f;
+                Rect7OuterTouching.X = -350f;
             }
             else
             {
-                Rect7OuterTouching.RelativeX = -250f;
+                Rect7OuterTouching.RelativeX = -350f;
             }
             if (Rect7OuterTouching.Parent == null)
             {
-                Rect7OuterTouching.Y = 24f;
+                Rect7OuterTouching.Y = 221f;
             }
             else
             {
-                Rect7OuterTouching.RelativeY = 24f;
+                Rect7OuterTouching.RelativeY = 221f;
             }
             if (Rect7OuterTouching.Parent == null)
             {
@@ -693,19 +807,19 @@ namespace TestBed.Screens
             Rect7OuterTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
             if (Rect8OuterNotTouching.Parent == null)
             {
-                Rect8OuterNotTouching.X = -100f;
+                Rect8OuterNotTouching.X = -320f;
             }
             else
             {
-                Rect8OuterNotTouching.RelativeX = -100f;
+                Rect8OuterNotTouching.RelativeX = -320f;
             }
             if (Rect8OuterNotTouching.Parent == null)
             {
-                Rect8OuterNotTouching.Y = -170f;
+                Rect8OuterNotTouching.Y = -150f;
             }
             else
             {
-                Rect8OuterNotTouching.RelativeY = -170f;
+                Rect8OuterNotTouching.RelativeY = -150f;
             }
             if (Rect8OuterNotTouching.Parent == null)
             {
@@ -718,6 +832,60 @@ namespace TestBed.Screens
             Rect8OuterNotTouching.Width = 100f;
             Rect8OuterNotTouching.Height = 200f;
             Rect8OuterNotTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
+            if (Rect8OuterNotTouching2.Parent == null)
+            {
+                Rect8OuterNotTouching2.X = -100f;
+            }
+            else
+            {
+                Rect8OuterNotTouching2.RelativeX = -100f;
+            }
+            if (Rect8OuterNotTouching2.Parent == null)
+            {
+                Rect8OuterNotTouching2.Y = -170f;
+            }
+            else
+            {
+                Rect8OuterNotTouching2.RelativeY = -170f;
+            }
+            if (Rect8OuterNotTouching2.Parent == null)
+            {
+                Rect8OuterNotTouching2.Z = 10f;
+            }
+            else
+            {
+                Rect8OuterNotTouching2.RelativeZ = 10f;
+            }
+            Rect8OuterNotTouching2.Width = 100f;
+            Rect8OuterNotTouching2.Height = 200f;
+            Rect8OuterNotTouching2.Color = Microsoft.Xna.Framework.Color.Salmon;
+            if (Rect6OuterTouching2.Parent == null)
+            {
+                Rect6OuterTouching2.X = -250f;
+            }
+            else
+            {
+                Rect6OuterTouching2.RelativeX = -250f;
+            }
+            if (Rect6OuterTouching2.Parent == null)
+            {
+                Rect6OuterTouching2.Y = 0f;
+            }
+            else
+            {
+                Rect6OuterTouching2.RelativeY = 0f;
+            }
+            if (Rect6OuterTouching2.Parent == null)
+            {
+                Rect6OuterTouching2.Z = 10f;
+            }
+            else
+            {
+                Rect6OuterTouching2.RelativeZ = 10f;
+            }
+            Rect6OuterTouching2.Width = 200f;
+            Rect6OuterTouching2.Height = 100f;
+            Rect6OuterTouching2.Color = Microsoft.Xna.Framework.Color.Salmon;
         }
         public virtual void ConvertToManuallyUpdated () 
         {

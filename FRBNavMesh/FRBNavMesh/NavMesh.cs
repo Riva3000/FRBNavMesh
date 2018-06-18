@@ -209,12 +209,15 @@ namespace FRBNavMesh
             // We have a path, so now time for the funnel algorithm
             Channel channel = new Channel();
             channel.Add(startPoint);
+
             SimpleLine portal;
             int countLimit = nodesPath.Count - 1;
+            TNode pathNavPolygon;
+            TNode nextPathNavPolygon;
             for (int i = 0; i < countLimit; i++)
             {
-                TNode navPolygon = nodesPath[i];
-                TNode nextNavPolygon = nodesPath[i + 1];
+                pathNavPolygon = nodesPath[i];
+                nextPathNavPolygon = nodesPath[i + 1];
 
                 // Find the portal
                 portal = null;
@@ -227,9 +230,9 @@ namespace FRBNavMesh
                     }
                 }*/
                 //nextNavPolygon.mParentNode
-                foreach (var link in navPolygon.Links)
+                foreach (var link in pathNavPolygon.Links)
                 {
-                    if (link.NodeLinkingTo == nextNavPolygon)
+                    if (link.NodeLinkingTo == nextPathNavPolygon)
                     {
                         portal = link.Portal;
                         // Push the portal vertices into the channel
@@ -238,15 +241,17 @@ namespace FRBNavMesh
                     }
                 }
             }
+
             channel.Add(endPoint);
 
+
             // Pull a string along the channel to run the funnel
-            channel.stringPull();
+            channel.StringPull();
 
             // Clone path, excluding duplicates
             Point? lastPoint = null;
             List<Point> finalPointsPath = new List<Point>();
-            foreach (var p in channel.path)
+            foreach (var p in channel.Path)
             {
                 //var newPoint = p.clone();
                 var newPoint = p;
@@ -255,15 +260,6 @@ namespace FRBNavMesh
                     finalPointsPath.Add(newPoint);
                 lastPoint = newPoint;
             }
-
-            /*
-            // Call debug drawing
-            if (drawPolyPath) {
-                const polyPath = astarPath.map(elem => elem.centroid);
-                this.debugDrawPath(polyPath, 0x00ff00, 5);
-            }
-            if (drawFinalPath) this.debugDrawPath(phaserPath, 0xffd900, 10);
-            */
 
             return finalPointsPath;
             #endregion --- Funnel algorithm END
@@ -566,6 +562,7 @@ namespace FRBNavMesh
                         //navPolyEdge = navPoly.EdgeBottom;
                         //otherNavPolyEdge = otherNavPoly.EdgeTop;
                         portal = _GetSegmentOverlapHorisontal(navPoly.EdgeBottom, otherNavPoly.EdgeTop);
+                        //portal = new SimpleLine(portal.End, portal.Start);
                     }
                     // other is to left
                     else if (navPolyPolygon.Left == otherNavPolyPolygon.Right)
@@ -600,7 +597,7 @@ namespace FRBNavMesh
                     {
                         navPoly.LinkTo(otherNavPoly, portal);
                         Debug.ShowLine(portal, Color.Yellow);
-                        Debug.ShowLine(navPolyPolygon.Position, otherNavPolyPolygon.Position, Debug.DarkGray);
+                        Debug.ShowLine(navPolyPolygon.Position, otherNavPolyPolygon.Position, Debug.Gray32);
                     }
                     else
                         D.WriteLine($"       Not Touching");
@@ -718,17 +715,7 @@ namespace FRBNavMesh
             return null;
         }
 
-        /*
-        * Project a point onto a polygon in the shortest distance possible.
-        * 
-        * @param {Phaser.Point} point The point to project
-        * @param {NavPoly} navPoly The navigation polygon to test against
-        * @returns {{point: Phaser.Point, distance: number}}
-        * 
-        * @private
-        * @memberof NavMesh
-        */
-        /// <summary>Project a point onto a polygon in the shortest distance possible.</summary>
+        /*/// <summary>Project a point onto a polygon in the shortest distance possible.</summary>
         /// <param name="point">The point to project</param>
         /// <param name="navPoly">The navigation polygon to test against</param>
         /// <returns></returns>
@@ -746,7 +733,7 @@ namespace FRBNavMesh
                 }
             }
             return Tuple.Create(closestProjection, closestDistance);
-        }
+        }*/
 
         /// <summary>Distance</summary>
         /// <returns>Distance between two 2D points</returns>
