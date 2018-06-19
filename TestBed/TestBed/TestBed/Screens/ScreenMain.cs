@@ -59,6 +59,7 @@ namespace TestBed.Screens
             _GoalMarker = new Entities.MarkerCross { Color = Color.Green, Visible = false };
 
             _SetStart(-100f, -220f);
+            _SetGoal(-100f, -220f);
 
             _FinalPathLines = new List<Line>(30);
             _NodesPathLines = new List<Line>(10);
@@ -113,7 +114,7 @@ namespace TestBed.Screens
         // -------
         private void _SetGoal(float x, float y)
         {
-            //_SetStart(ref _GoalPos);
+            _SetStart(ref _GoalPos);
 
             _GoalPos.X = x;
             _GoalPos.Y = y;
@@ -173,7 +174,7 @@ namespace TestBed.Screens
                 while (linesMissing > 0)
                 {
                     nodePathLine = ShapeManager.AddLine();
-                    nodePathLine.Color = Debug.Gray96;
+                    nodePathLine.Color = Debug.NiceBlue; //Debug.Gray96;
                     _NodesPathLines.Add( nodePathLine );
                     linesMissing--;
                 }
