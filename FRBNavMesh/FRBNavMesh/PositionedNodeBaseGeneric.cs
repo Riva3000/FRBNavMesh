@@ -281,17 +281,17 @@ namespace FRBNavMesh
             return false;
         }
 
-        public void LinkTo(TNode nodeToLinkTo, SimpleLine portal)
+        public void LinkTo(TNode nodeToLinkTo, SimpleLine portalForThisNode)
         {
 #if DEBUG
 			if (nodeToLinkTo == this)
-			{
 				throw new ArgumentException("Cannot have a node link to itself");
-			}
+            if (portalForThisNode == null)
+				throw new ArgumentNullException("portal");
 #endif
             float distanceToTravel = (Position - nodeToLinkTo.Position).Length();
 
-            LinkTo(nodeToLinkTo, distanceToTravel, portal);
+            LinkTo(nodeToLinkTo, distanceToTravel, portalForThisNode);
         }
 
         #region XML Docs
@@ -306,9 +306,9 @@ namespace FRBNavMesh
         /// <param name="nodeToLinkTo">The other PositionedNode to create Links between.</param>
         /// <param name="costTo">The cost to travel between this and the argument nodeToLinkTo.</param>
         #endregion
-        public void LinkTo(TNode nodeToLinkTo, float costTo, SimpleLine portal)
+        public void LinkTo(TNode nodeToLinkTo, float costTo, SimpleLine portalForThisNode)
         {
-            LinkTo(nodeToLinkTo, costTo, costTo, portal);
+            LinkTo(nodeToLinkTo, costTo, costTo, portalForThisNode);
         }
 
         #region XML Docs
@@ -324,7 +324,7 @@ namespace FRBNavMesh
         /// <param name="costTo">The cost to travel from this to the argument nodeToLinkTo.</param>
         /// <param name="costFrom">The cost to travel from the nodeToLinkTo back to this.</param>
         #endregion
-        public void LinkTo(TNode nodeToLinkTo, float costTo, float costFrom, SimpleLine portal)
+        public void LinkTo(TNode nodeToLinkTo, float costTo, float costFrom, SimpleLine portalForThisNode)
         {
 #if DEBUG
 			if (nodeToLinkTo == this)
@@ -337,7 +337,7 @@ namespace FRBNavMesh
                 if (mLinks[i].NodeLinkingTo == nodeToLinkTo)
                 {
                     mLinks[i].Cost = costTo;
-                    mLinks[i].Portal = portal;
+                    mLinks[i].Portal = portalForThisNode;
                     updated = true;
                     break;
                 }
@@ -345,7 +345,7 @@ namespace FRBNavMesh
             if (!updated)
             {
                 //mLinks.Add(new TLink(nodeToLinkTo, costTo));
-                mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo, portal) );
+                mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo, portalForThisNode) );
             }
 
             // Now do the same for the other node
@@ -355,7 +355,11 @@ namespace FRBNavMesh
                 if (nodeToLinkTo.mLinks[i].NodeLinkingTo == this)
                 {
                     nodeToLinkTo.mLinks[i].Cost = costFrom;
-                    nodeToLinkTo.mLinks[i].Portal = portal;
+
+                    //nodeToLinkTo.mLinks[i].Portal.Start = portalForThisNode.End;
+                    //nodeToLinkTo.mLinks[i].Portal.End = portalForThisNode.Start;
+                    nodeToLinkTo.mLinks[i].Portal = new SimpleLine(portalForThisNode.End, portalForThisNode.Start);
+
                     updated = true;
                     break;
                 }
@@ -363,7 +367,7 @@ namespace FRBNavMesh
             if (!updated)
             {
                 //nodeToLinkTo.mLinks.Add(new TLink(this, costFrom));
-                nodeToLinkTo.mLinks.Add( LinkBase<TLink, TNode>.Create(this as TNode, costFrom, portal) );
+                nodeToLinkTo.mLinks.Add( LinkBase<TLink, TNode>.Create(this as TNode, costFrom, new SimpleLine(portalForThisNode.End, portalForThisNode.Start)) );
             }
         }
 
@@ -379,7 +383,7 @@ namespace FRBNavMesh
         /// <param name="nodeToLinkTo">The PositionedNode to create a link to.</param>
         /// <param name="costTo">The cost to travel from this to the argument nodeToLinkTo.</param>
         #endregion
-        public void LinkToOneWay(TNode nodeToLinkTo, float costTo, SimpleLine portal)
+        public void LinkToOneWay(TNode nodeToLinkTo, float costTo, SimpleLine portalForThisNode)
         {
             foreach (TLink link in mLinks)
             {
@@ -390,7 +394,7 @@ namespace FRBNavMesh
                 }
             }
 
-            mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo, portal) );
+            mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo, portalForThisNode) );
         }
         // --- Links END
 
@@ -444,9 +448,16 @@ namespace FRBNavMesh
         {
             // Assign edges
 
+            //  v1 old:
             //  0 > > 3
             //  v     v
             //  v     v
+            //  1 > > 2
+
+            //  v2 current - counter-clocwise order of points:
+            //  0 < < 3
+            //  v     ^
+            //  v     ^
             //  1 > > 2
 
             // Left - top-left to bottom-left
@@ -454,9 +465,9 @@ namespace FRBNavMesh
             // Bottom - bottom-left to bottom-right
             _EdgeBottom = new SimpleLine(mPolygon.Left, mPolygon.Bottom,    mPolygon.Right, mPolygon.Bottom);
             // Right - bottom-right to top-right
-            _EdgeRight = new SimpleLine(mPolygon.Right, mPolygon.Top,    mPolygon.Right, mPolygon.Bottom);
-            // Top - top-left to top-right
-            _EdgeTop = new SimpleLine(mPolygon.Left, mPolygon.Top,    mPolygon.Right, mPolygon.Top);
+            _EdgeRight = new SimpleLine(mPolygon.Right, mPolygon.Bottom,    mPolygon.Right, mPolygon.Top);
+            // Top - top-right to top-left
+            _EdgeTop = new SimpleLine(mPolygon.Right, mPolygon.Top,    mPolygon.Left, mPolygon.Top);
 
             /*Debug.ShowLine(_EdgeRight, Color.Green);
             Debug.ShowLine(_EdgeLeft, Color.DarkGreen);

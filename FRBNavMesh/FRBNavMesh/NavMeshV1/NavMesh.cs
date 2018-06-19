@@ -260,6 +260,9 @@ namespace FRBNavMesh
 
                             // Calculate the portal between the two polygons - this needs to be in
                             // counter-clockwise order, relative to each polygon
+                            // o < o
+                            // v   ^
+                            // o > o
                             //const [p1, p2] = overlap;
                             var p1 = overlap[0];
                             var p2 = overlap[1];

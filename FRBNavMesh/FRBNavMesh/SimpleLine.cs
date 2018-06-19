@@ -9,25 +9,25 @@ namespace FRBNavMesh
     public class SimpleLine
     {
         /// <summary></summary>
-        /// <param name="x1">The x coordinate of the start of the line.</param>
-        /// <param name="y1">The y coordinate of the start of the line.</param>
-        /// <param name="x2">The x coordinate of the end of the line.</param>
-        /// <param name="y2">The y coordinate of the end of the line.</param>
-        public SimpleLine(float x1 = 0, float y1 = 0, float x2 = 0, float y2 = 0)
+        /// <param name="startX">The x coordinate of the start of the line.</param>
+        /// <param name="startY">The y coordinate of the start of the line.</param>
+        /// <param name="endX">The x coordinate of the end of the line.</param>
+        /// <param name="endY">The y coordinate of the end of the line.</param>
+        public SimpleLine(float startX, float startY, float endX, float endY)
         {
-            Start = new Point(x1, y1);
-            End = new Point(x2, y2);
+            Start = new Point(startX, startY);
+            End = new Point(endX, endY);
         }
 
         /// <summary></summary>
-        /// <param name="x1">The x coordinate of the start of the line.</param>
-        /// <param name="y1">The y coordinate of the start of the line.</param>
-        /// <param name="x2">The x coordinate of the end of the line.</param>
-        /// <param name="y2">The y coordinate of the end of the line.</param>
-        public SimpleLine(double x1 = 0, double y1 = 0, double x2 = 0, double y2 = 0)
+        /// <param name="startX">The x coordinate of the start of the line.</param>
+        /// <param name="startY">The y coordinate of the start of the line.</param>
+        /// <param name="endX">The x coordinate of the end of the line.</param>
+        /// <param name="endY">The y coordinate of the end of the line.</param>
+        public SimpleLine(double startX, double startY, double endX, double endY)
         {
-            Start = new Point(x1, y1);
-            End = new Point(x2, y2);
+            Start = new Point(startX, startY);
+            End = new Point(endX, endY);
         }
 
         /// <summary></summary>
@@ -50,9 +50,9 @@ namespace FRBNavMesh
         //float Bottom;
 
         /// <summary>The start point of the line.</summary>
-        public Point Start;
+        public readonly Point Start;
         /// <summary>The end point of the line.</summary>
-        public Point End;
+        public readonly Point End;
 
         /// <summary>Gets the height of this bounds of this line.</summary>
         //float Height;
