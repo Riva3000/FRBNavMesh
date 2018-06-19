@@ -546,7 +546,7 @@ namespace FRBNavMesh
                     #region    - Using common sense
                     // Here I know they do overlap
                     //      Calculate the portal between the two polygons 
-                    //      - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
+                    //      - THIS NEEDS TO BE IN CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
                     //SimpleLine navPolyEdge;
                     //SimpleLine otherNavPolyEdge;
                     SimpleLine portal;
@@ -613,9 +613,6 @@ namespace FRBNavMesh
                     // -- Debug visuals
                     if (portal != null)
                     {
-                        // debug test
-                        portal = new SimpleLine(portal.End, portal.Start);
-
                         navPoly.LinkTo(otherNavPoly, portal);
                         Debug.ShowLine(portal, Color.Yellow);
                         Debug.ShowLine(navPolyPolygon.Position, otherNavPolyPolygon.Position, Debug.Gray32);
@@ -749,12 +746,12 @@ namespace FRBNavMesh
             // other poly is more to right
             {
                 // Calculate the portal between the two polygons 
-                // - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
+                // - THIS NEEDS TO BE IN CLOCKWISE ORDER, RELATIVE TO POLYGON
 
                 return new SimpleLine(
-                    edge.Start.X,
-                    edge.Start.Y,
                     othersEdge.Start.X,
+                    edge.Start.Y,
+                    edge.Start.X,
                     edge.Start.Y
                 );
             }
@@ -763,12 +760,12 @@ namespace FRBNavMesh
             // other poly is more to left
             {
                 // Calculate the portal between the two polygons 
-                // - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
+                // - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO POLYGON
 
                 return new SimpleLine(
-                    othersEdge.End.X,
-                    edge.Start.Y,
                     edge.End.X,
+                    edge.Start.Y,
+                    othersEdge.End.X,
                     edge.Start.Y
                 );
             }
@@ -785,9 +782,9 @@ namespace FRBNavMesh
                 // - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
 
                 return new SimpleLine(
-                    edge.Start.X,
-                    edge.Start.Y,
                     othersEdge.Start.X,
+                    edge.Start.Y,
+                    edge.Start.X,
                     edge.Start.Y
                 );
             }
@@ -799,9 +796,9 @@ namespace FRBNavMesh
                 // - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
 
                 return new SimpleLine(
-                    othersEdge.End.X,
-                    edge.Start.Y,
                     edge.End.X,
+                    edge.Start.Y,
+                    othersEdge.End.X,
                     edge.Start.Y
                 );
             }
@@ -816,9 +813,9 @@ namespace FRBNavMesh
             {
                 return new SimpleLine(
                     edge.Start.X,
-                    edge.Start.Y,
+                    othersEdge.Start.Y,
                     edge.Start.X,
-                    othersEdge.Start.Y
+                    edge.Start.Y
                 );
             }
             //else if ( edge.End.Y < othersEdge.End.Y ) 
@@ -827,9 +824,9 @@ namespace FRBNavMesh
             {
                 return new SimpleLine(
                     edge.Start.X,
-                    othersEdge.End.Y,
+                    edge.End.Y,
                     edge.Start.X,
-                    edge.End.Y
+                    othersEdge.End.Y
                 );
             }
 
@@ -843,9 +840,9 @@ namespace FRBNavMesh
             {
                 return new SimpleLine(
                     edge.Start.X,
-                    edge.Start.Y,
+                    othersEdge.Start.Y,
                     edge.Start.X,
-                    othersEdge.Start.Y
+                    edge.Start.Y
                 );
             }
             //else if ( edge.End.Y > othersEdge.End.Y ) 
@@ -854,9 +851,9 @@ namespace FRBNavMesh
             {
                 return new SimpleLine(
                     edge.Start.X,
-                    othersEdge.End.Y,
+                    edge.End.Y,
                     edge.Start.X,
-                    edge.End.Y
+                    othersEdge.End.Y
                 );
             }
 
