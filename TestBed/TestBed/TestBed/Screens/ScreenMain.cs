@@ -95,8 +95,16 @@ namespace TestBed.Screens
                     //_PlayerOneCharacter.X = InputManager.Mouse.WorldXAt(0);
                     //_PlayerOneCharacter.Y = InputManager.Mouse.WorldYAt(0);
 
-                    
-                    _SetGoal(InputManager.Mouse.WorldXAt(0), InputManager.Mouse.WorldYAt(0));
+                    if (InputManager.Keyboard.KeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || InputManager.Keyboard.KeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift))
+                    {
+                        _SetGoal(InputManager.Mouse.WorldXAt(0), InputManager.Mouse.WorldYAt(0));
+                    }
+                    else
+                    {
+                        _SetStart(ref _GoalPos);
+                        _SetGoal(InputManager.Mouse.WorldXAt(0), InputManager.Mouse.WorldYAt(0));
+                    }
+
                     _FindAndShowPath();
                 }
             }
@@ -114,8 +122,6 @@ namespace TestBed.Screens
         // -------
         private void _SetGoal(float x, float y)
         {
-            _SetStart(ref _GoalPos);
-
             _GoalPos.X = x;
             _GoalPos.Y = y;
             _GoalMarker.X = x;
