@@ -152,7 +152,7 @@ namespace TestBed.Screens
 
             // -- Debug visuals
             // NavPolys
-            foreach (var node in _NavMesh.NavPolygons)
+            foreach (var node in _NavMesh.PortalNodes)
             {
                 node.Polygon.Color = Color.Salmon;
             }

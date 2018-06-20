@@ -14,16 +14,24 @@ namespace FRBNavMesh
         where TLink : LinkBase<TLink, TNode>, new()
         where TNode : PositionedNodeBase<TLink, TNode>, new()
     {
+        #region Fields
+        protected bool mActive; 
+
+        protected float mCost;
+
+        protected TNode mNodeLinkingTo;
+
+        protected SimpleLine mPortal;
+        #endregion
+
         #region Properties
-        protected bool mActive;
         public bool Active
         {
             get { return mActive; }
             set { mActive = value; }
         }
 
-        protected float mCost;
-         /// <summary>
+        /// <summary>
         /// The cost to travel the link.
         /// </summary>
         /// <remarks>
@@ -37,7 +45,6 @@ namespace FRBNavMesh
             set { mCost = value; }
         }
 
-        protected TNode mNodeLinkingTo;
         /// <summary>
         /// The destination PositionedNode.  The starting PositionedNode is not stored by the Link instance.
         /// </summary>
@@ -47,15 +54,12 @@ namespace FRBNavMesh
             set { mNodeLinkingTo = value; }
         }
 
-        protected SimpleLine mPortal;
         public SimpleLine Portal
         {
             get { return mPortal; }
             set { mPortal = value; }
         }
         #endregion
-
-
 
         #region Methods
 
@@ -95,7 +99,7 @@ namespace FRBNavMesh
                 return Cost + " <not linking to any node>";
             else
                 //return Cost.ToString(); // + " " + NodeLinkingTo.Name;
-                return Cost + " " + NodeLinkingTo.ID;
+                return Cost + " " + NodeLinkingTo.Id;
         }
 
         #endregion

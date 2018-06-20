@@ -53,6 +53,7 @@
     <Compile Include="ConversionTemp\NotNeededException.cs" />
     <Compile Include="GenericsTests\SpecificNodeAndLink.cs" />
     <Compile Include="LinkBaseGeneric.cs" />
+    <Compile Include="NavArea.cs" />
     <Compile Include="NavMesh.cs" />
     <Compile Include="SimpleLine.cs" />
     <Compile Include="PositionedNodeBaseGeneric.cs" />
@@ -94,6 +95,7 @@
   <ItemGroup>
     <None Include="Docs\AARects edge overlaps v2 clockvise.ddd" />
     <None Include="Docs\AARects edge overlaps.ddd" />
+    <None Include="Docs\DataStructuresChart02 PortalNodes.ddd" />
     <None Include="Docs\DataStructuresChart01.ddd" />
     <None Include="Docs\Library system and classes description.txt" />
     <None Include="Docs\Notes and Calc tests.xls" />

@@ -43,9 +43,8 @@ namespace FRBNavMesh
         where TNode : PositionedNodeBase<TLink, TNode>, new()
         where TLink : LinkBase<TLink, TNode>, new()
     {
-        //private int _meshShrinkAmount;
-        public List<TNode> NavPolygons;
-        //private NavGraph _Graph; // just for javascript-astar
+        public readonly List<NavArea> NavAreas;
+        public readonly List<TNode> PortalNodes;
 
         #region    -- A*
         // This reduces memory allocation during runtime and also reduces the argument list size
@@ -68,17 +67,16 @@ namespace FRBNavMesh
         {
             //_meshShrinkAmount = meshShrinkAmount;
 
-            // Construct NavPoly instances for each polygon
-            NavPolygons = new List<TNode>();
+            // Construct NavArea instances for each polygon
+            NavAreas = new List<NavArea>(polygons.Count);
             for (int i = 0; i < polygons.Count; i++)
             {
-                this.NavPolygons.Add( PositionedNodeBase<TLink, TNode>.Create(i, polygons[i]) );
+                NavAreas.Add( new NavArea(polygons[i], i) );
             }
 
-            this._CalculateNeighbors();
+            PortalNodes = new List<TNode>(polygons.Count * 3);
 
-            // Astar graph of connections between polygons
-            //this._Graph = new NavGraph(this._NavPolygons);
+            _CalculateNeighbors();
         }
 
 
@@ -275,7 +273,7 @@ namespace FRBNavMesh
             float r;
 
             // Find the closest poly for the starting and ending point
-            foreach (var navPoly in this.NavPolygons)
+            foreach (var navPoly in this.PortalNodes)
             {
                 r = navPoly.Polygon.BoundingRadius;
                 // Start
@@ -451,25 +449,25 @@ namespace FRBNavMesh
             D.WriteLine(" * NavMesh._CalculateNeighbors()");
 
             // Fill out the neighbor information for each navpoly
-            TNode navPoly;
-            TNode otherNavPoly;
-            AxisAlignedRectangle navPolyPolygon;
-            AxisAlignedRectangle otherNavPolyPolygon;
-            for (int i = 0; i < NavPolygons.Count; i++)
+            NavArea navArea;
+            NavArea otherNavArea;
+            AxisAlignedRectangle navAreaPolygon;
+            AxisAlignedRectangle otherNavAreaPolygon;
+            for (int i = 0; i < NavAreas.Count; i++)
             {
-                navPoly = NavPolygons[i];
-                navPolyPolygon = navPoly.Polygon;
+                navArea = NavAreas[i];
+                navAreaPolygon = navArea.Polygon;
 
-                D.WriteLine("   navPoly: " + navPolyPolygon.Name);
-                (navPoly as PositionedNode).CheckedAsMain = true;
+                D.WriteLine("   navArea: " + navAreaPolygon.Name);
+                //(navArea as PositionedNode).CheckedAsMain = true;
 
-                for (int j = i + 1; j < NavPolygons.Count; j++)
+                for (int j = i + 1; j < NavAreas.Count; j++)
                 {
-                    otherNavPoly = NavPolygons[j];
-                    otherNavPolyPolygon = otherNavPoly.Polygon;
+                    otherNavArea = NavAreas[j];
+                    otherNavAreaPolygon = otherNavArea.Polygon;
 
-                    D.WriteLine("     otherNavPoly: " + otherNavPolyPolygon.Name);
-                    (otherNavPoly as PositionedNode).CheckedAsOther = true;
+                    D.WriteLine("     otherNavPoly: " + otherNavAreaPolygon.Name);
+                    //(otherNavArea as PositionedNode).CheckedAsOther = true;
 
                     /*// Debug
                     foreach (var link in otherNavPoly.Links)
@@ -483,17 +481,17 @@ namespace FRBNavMesh
 
                     // Check if the other navpoly is within range to touch
                     // Distance between centers
-                    var distanceBetweenCenters = RCommonFRB.Geometry.Distance2D(ref navPolyPolygon.Position, ref otherNavPolyPolygon.Position);
+                    var distanceBetweenCenters = RCommonFRB.Geometry.Distance2D(ref navAreaPolygon.Position, ref otherNavAreaPolygon.Position);
                     // If Distance between centers is bigger than combined radii, they are not in range
                     // If Distance between centers is smaller or equal, they are in range (not necessarily touching)
-                    if (distanceBetweenCenters >= navPolyPolygon.BoundingRadius + otherNavPolyPolygon.BoundingRadius)
+                    if (distanceBetweenCenters >= navAreaPolygon.BoundingRadius + otherNavAreaPolygon.BoundingRadius)
                     {
                         // Not in range => proceed to another navpoly
-                        D.WriteLine($"       Not in range (distanceBetweenCenters: {distanceBetweenCenters} totalRadii: {navPolyPolygon.BoundingRadius + otherNavPolyPolygon.BoundingRadius})");
+                        D.WriteLine($"       Not in range (distanceBetweenCenters: {distanceBetweenCenters} totalRadii: {navAreaPolygon.BoundingRadius + otherNavAreaPolygon.BoundingRadius})");
                         continue;
                     }
 
-                    D.WriteLine($"       In range (distanceBetweenCenters: {distanceBetweenCenters} totalRadii: {navPolyPolygon.BoundingRadius + otherNavPolyPolygon.BoundingRadius})");
+                    D.WriteLine($"       In range (distanceBetweenCenters: {distanceBetweenCenters} totalRadii: {navAreaPolygon.BoundingRadius + otherNavAreaPolygon.BoundingRadius})");
 
                     // The are in range, so check each edge pairing
                     // to find shared edge and shared part of edges = portal
@@ -507,44 +505,44 @@ namespace FRBNavMesh
                     //  returns vertical: always bottom-to-top
                     SimpleLine portal;
                     // other is above
-                    if (navPolyPolygon.Top == otherNavPolyPolygon.Bottom)
+                    if (navAreaPolygon.Top == otherNavAreaPolygon.Bottom)
                     {
-                        D.WriteLine($"       Other above -- Touching this Top ({navPolyPolygon.Top}) - other Bottom ({otherNavPolyPolygon.Bottom})");
+                        D.WriteLine($"       Other above -- Touching this Top ({navAreaPolygon.Top}) - other Bottom ({otherNavAreaPolygon.Bottom})");
 
-                        portal = _GetSegmentOverlap(navPoly.EdgeTop, otherNavPoly.EdgeBottom, true, false);
+                        portal = _GetSegmentOverlap(navArea.EdgeTop, otherNavArea.EdgeBottom, true, false);
 
                         // Debug visuals
                         if (portal != null)
                             _DrawDebugVisualForPortal(portal.Start.X + 3f, portal.Start.Y - 3f, portal.End.X - 3f, portal.End.Y - 3f);
                     }
                     // other is below
-                    else if (navPolyPolygon.Bottom == otherNavPolyPolygon.Top)
+                    else if (navAreaPolygon.Bottom == otherNavAreaPolygon.Top)
                     {
-                        D.WriteLine($"       Other below -- Touching this Bottom ({navPolyPolygon.Bottom}) - other Top ({otherNavPolyPolygon.Top})");
+                        D.WriteLine($"       Other below -- Touching this Bottom ({navAreaPolygon.Bottom}) - other Top ({otherNavAreaPolygon.Top})");
 
-                        portal = _GetSegmentOverlap(navPoly.EdgeBottom, otherNavPoly.EdgeTop, true, true);
+                        portal = _GetSegmentOverlap(navArea.EdgeBottom, otherNavArea.EdgeTop, true, true);
 
                         // Debug visuals
                         if (portal != null)
                             _DrawDebugVisualForPortal(portal.Start.X - 3f, portal.Start.Y + 3f, portal.End.X + 3f, portal.End.Y + 3f);
                     }
                     // other is to left
-                    else if (navPolyPolygon.Left == otherNavPolyPolygon.Right)
+                    else if (navAreaPolygon.Left == otherNavAreaPolygon.Right)
                     {
-                        D.WriteLine($"       Other to left -- Touching this Left ({navPolyPolygon.Left}) - other Right ({otherNavPolyPolygon.Right})");
+                        D.WriteLine($"       Other to left -- Touching this Left ({navAreaPolygon.Left}) - other Right ({otherNavAreaPolygon.Right})");
 
-                        portal = _GetSegmentOverlap(navPoly.EdgeLeft, otherNavPoly.EdgeRight, false, false);
+                        portal = _GetSegmentOverlap(navArea.EdgeLeft, otherNavArea.EdgeRight, false, false);
 
                         // Debug visuals
                         if (portal != null)
                             _DrawDebugVisualForPortal(portal.Start.X + 3f, portal.Start.Y + 3f, portal.End.X + 3f, portal.End.Y - 3f);
                     }
                     // other is to right
-                    else if (navPolyPolygon.Right == otherNavPolyPolygon.Left)
+                    else if (navAreaPolygon.Right == otherNavAreaPolygon.Left)
                     {
-                        D.WriteLine($"       Other to right -- Touching this Right ({navPolyPolygon.Right}) - other Left ({otherNavPolyPolygon.Left})");
+                        D.WriteLine($"       Other to right -- Touching this Right ({navAreaPolygon.Right}) - other Left ({otherNavAreaPolygon.Left})");
 
-                        portal = _GetSegmentOverlap(navPoly.EdgeRight, otherNavPoly.EdgeLeft, false, true);
+                        portal = _GetSegmentOverlap(navArea.EdgeRight, otherNavArea.EdgeLeft, false, true);
 
                         // Debug visuals
                         if (portal != null)
@@ -562,7 +560,19 @@ namespace FRBNavMesh
                     
                     if (portal != null) // this check IS needed
                     {
-                        navPoly.LinkTo(otherNavPoly, portal);
+                        // Found portal between 2 NavAreas
+                        // - have to add 2 portal Nodes
+                        //
+                        // - assign one to this NavArea
+                        // - assign to one this portal
+                        //
+                        // - assign other to other NavArea
+                        // - assign to other an inverted portal
+                        //
+                        var thisPortalNode = PositionedNodeBase<TLink, TNode>.Create(i * 10 + j, navArea, portal);
+                        var otherPortalNode = PositionedNodeBase<TLink, TNode>.Create(j * 10 + i, otherNavArea, _InvertedLine(portal));
+                        
+                        //navArea.LinkTo(otherNavArea, portal);
 
                     #region    -- Debug visuals
                         /*Debug.ShowLine(portal, Color.Yellow);
@@ -570,14 +580,21 @@ namespace FRBNavMesh
                         circle.Radius = 6f;
                         circle.Color = Color.Yellow;
                         circle.X = (float)portal.Start.X;
-                        circle.Y = (float)portal.Start.Y;*/
-                        Debug.ShowLine(navPolyPolygon.Position, otherNavPolyPolygon.Position, Debug.Gray32);
+                        circle.Y = (float)portal.Start.Y;
+                        Debug.ShowLine(navAreaPolygon.Position, otherNavAreaPolygon.Position, Debug.Gray32);*/
                     }
                     else
                         D.WriteLine($"       Not Touching");
                     #endregion -- Debug visuals END
-                }
+                }// for other j
+            }// for one i
+
+            foreach (var navArea in NavAreas)
+            {
+
             }
+
+
 
             /*// Debug
             var sb = new StringBuilder("--------------\n");
@@ -714,6 +731,10 @@ namespace FRBNavMesh
             return p;
         }
 
+        private SimpleLine _InvertedLine(SimpleLine line)
+        {
+            return new SimpleLine(line.End, line.Start);
+        }
 
         #region    --- Debug permanent
         #endregion --- Debug permanent END
