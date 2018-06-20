@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Point = FlatRedBall.Math.Geometry.Point;
 
 namespace FRBNavMesh
 {
@@ -31,6 +32,13 @@ namespace FRBNavMesh
         {
             var visLine = ShapeManager.AddLine();
             visLine.SetFromAbsoluteEndpoints(point1, point2);
+            visLine.Color = color;
+            //visLine.Visible = true;
+        }
+        public static void ShowLine(double x1, double y1, double x2, double y2, Color color)
+        {
+            var visLine = ShapeManager.AddLine();
+            visLine.SetFromAbsoluteEndpoints(new Point3D(x1, y1), new Point3D(x2, y2));
             visLine.Color = color;
             //visLine.Visible = true;
         }

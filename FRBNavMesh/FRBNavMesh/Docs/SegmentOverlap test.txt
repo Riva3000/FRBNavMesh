@@ -1,0 +1,118 @@
+both edges horizontal
+
+line1 [ 10,0 | -20,0 ]		2---.-1
+line2 [ -10,0 | 20,0 ]		  1-.---2
+
+
+pointsOfLines = RLineAndPoint[]
+{
+	[0] pl(0) = line1, point = line1.Start = -20,0
+	[1] pl(1) = line1, point = line1.End = 10,0
+
+	[2] pl(2) = line2, point = line2.Start = 20,0
+	[3] pl(3) = line2, point = line2.End = -10,0
+}
+
+sort by point.X
+
+{
+	[0] pl(2) = line2, point = line2.Start = 20,0
+	[1] pl(1) = line1, point = line1.End = 10,0
+	[2] pl(3) = line2, point = line2.End = -10,0
+	[3] pl(0) = line1, point = line1.Start = -20,0
+}
+
+
+bool noOverlap = pointsOfLines[0].line == pointsOfLines[1].line;
+	       = line2 == line1
+	       = false
+
+bool singlePointOverlap = pointsOfLines[1].point == pointsOfLines[2].point;
+			= 10,0 == -10,0
+			= false
+
+return new SimpleLine(pointsOfLines[1].point, pointsOfLines[2].point)
+return new SimpleLine(line1.End, line2.End)
+return new SimpleLine(10,0 | -10,0)
+
+	1---.-2
+	  2-.---1
+return	  2-.-1		// not clockvise for owner of line1
+
+=================================================================
+
+both edges horizontal
+
+line1 [ -20,0 | 20,0 ]		x---.---x
+line2 [ -20,0 | 20,0 ]		x---.---x
+
+
+pointsOfLines = RLineAndPoint[]
+{
+	line[0] = line1, point = line1.Start = -20,0
+	line[1] = line1, point = line1.End = 20,0
+
+	line[2] = line2, point = line2.Start = -20,0
+	line[3] = line2, point = line2.End = 20,0
+}
+
+sort by point.X
+
+{
+	line[0] = line1, point = line1.Start = -20,0
+	line[2] = line2, point = line2.Start = -20,0
+	line[1] = line1, point = line1.End = 20,0
+	line[3] = line2, point = line2.End = 20,0
+}
+
+
+bool noOverlap = pointsOfLines[0].line == pointsOfLines[1].line;
+		= false
+
+bool singlePointOverlap = pointsOfLines[1].point == pointsOfLines[2].point;
+			= false
+
+return new SimpleLine(pointsOfLines[1].point, pointsOfLines[2].point);
+return new SimpleLine(line2.Start, line1.End);
+
+	x---.---x
+	x---.---x
+return	x---.---x
+
+=================================================================
+
+line1 [ -20,0 | 10,0 ]		x---.-x
+line2 [ 20,0 | -10,0 ]		  x-.---x
+
+
+pointsOfLines = RLineAndPoint[]
+{
+	line[0] = line1, point = line1.Start = -20,0
+	line[1] = line1, point = line1.End = 10,0
+
+	line[2] = line2, point = line2.Start = 20,0
+	line[3] = line2, point = line2.End = -10,0
+}
+
+sort by point.X
+
+{
+
+
+
+
+}
+
+
+bool noOverlap = pointsOfLines[0].line == pointsOfLines[1].line;
+		= false
+
+bool singlePointOverlap = pointsOfLines[1].point == pointsOfLines[2].point;
+			= false
+
+return new SimpleLine(pointsOfLines[1].point, pointsOfLines[2].point);
+return new SimpleLine(line2.Start, line1.End);
+
+	x---.-x
+	  x-.---x
+return	  x-.-x

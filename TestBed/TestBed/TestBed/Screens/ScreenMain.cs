@@ -22,7 +22,7 @@ namespace TestBed.Screens
 {
 	public partial class ScreenMain
 	{
-        NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link> _MavMesh;
+        NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link> _NavMesh;
 
         Point _StartPos;
         Point _GoalPos;
@@ -53,7 +53,7 @@ namespace TestBed.Screens
                 textObj.HorizontalAlignment = HorizontalAlignment.Center;
             }*/
 
-            _MavMesh = new NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link>( RectsList );
+            _NavMesh = new NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link>( RectsList );
 
             _StartMarker = new Entities.MarkerCross();
             _GoalMarker = new Entities.MarkerCross { Color = Color.Green, Visible = false };
@@ -147,12 +147,12 @@ namespace TestBed.Screens
         {
             // -- Find path
             List<FRBNavMesh.PositionedNode> nodePath;
-            var pointsPath = _MavMesh.FindPath(_StartPos, _GoalPos, out nodePath);
+            var pointsPath = _NavMesh.FindPath(_StartPos, _GoalPos, out nodePath);
 
 
             // -- Debug visuals
             // NavPolys
-            foreach (var node in _MavMesh.NavPolygons)
+            foreach (var node in _NavMesh.NavPolygons)
             {
                 node.Polygon.Color = Color.Salmon;
             }

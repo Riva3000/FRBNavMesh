@@ -471,7 +471,8 @@ namespace FRBNavMesh
                     D.WriteLine("     otherNavPoly: " + otherNavPolyPolygon.Name);
                     (otherNavPoly as PositionedNode).CheckedAsOther = true;
 
-                    /*foreach (var link in otherNavPoly.Links)
+                    /*// Debug
+                    foreach (var link in otherNavPoly.Links)
                     {
                         if (link.NodeLinkingTo == navPoly)
                         {
@@ -484,8 +485,7 @@ namespace FRBNavMesh
                     // Distance between centers
                     var distanceBetweenCenters = RCommonFRB.Geometry.Distance2D(ref navPolyPolygon.Position, ref otherNavPolyPolygon.Position);
                     // If Distance between centers is bigger than combined radii, they are not in range
-                    // If Distance between centers is smaller or equal, they are in range
-                    // * Like that they are in touch even when touching just by corners !
+                    // If Distance between centers is smaller or equal, they are in range (not necessarily touching)
                     if (distanceBetweenCenters >= navPolyPolygon.BoundingRadius + otherNavPolyPolygon.BoundingRadius)
                     {
                         // Not in range => proceed to another navpoly
@@ -496,109 +496,59 @@ namespace FRBNavMesh
                     D.WriteLine($"       In range (distanceBetweenCenters: {distanceBetweenCenters} totalRadii: {navPolyPolygon.BoundingRadius + otherNavPolyPolygon.BoundingRadius})");
 
                     // The are in range, so check each edge pairing
-
                     // to find shared edge and shared part of edges = portal
-
-                    #region    - Using areCollinear and SegmentOverlap
-                    /*foreach (var edge in navPoly.Edges)
-                    {
-                        foreach (var otherEdge in otherNavPoly.Edges)
-                        {
-                            // If edges aren't collinear, not an option for connecting navpolys
-                            if ( !Utils.areCollinear(edge, otherEdge) )
-                                continue;
-
-                            // If they are collinear, check if they overlap
-                            var overlap = this._GetSegmentOverlap(edge, otherEdge);
-                            if ( overlap == null )
-                                continue;
-
-                            // Connections are symmetric!
-                            navPoly.Neighbors.Add(otherNavPoly);
-                            otherNavPoly.Neighbors.Add(navPoly);
-
-                            // Calculate the portal between the two polygons 
-                            // - THIS NEEDS TO BE IN
-                            // COUNTER-CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
-                            //const [p1, p2] = overlap;
-                            var p1 = overlap[0];
-                            var p2 = overlap[1];
-                            //var edgeStartAngle = navPoly.centroid. angle(edge.Start);
-                            var edgeStartAngle = RUtils.Angle(ref navPoly.centroid, ref edge.Start);
-                            //var a1 = navPoly.centroid.angle(overlap[0]);
-                            var a1 = RUtils.Angle(ref navPoly.centroid, ref overlap[0]);
-                            //var a2 = navPoly.centroid.angle(overlap[1]);
-                            var a2 = RUtils.Angle(ref navPoly.centroid, ref overlap[1]);
-                            var d1 = Utils.angleDifference(edgeStartAngle, a1);
-                            var d2 = Utils.angleDifference(edgeStartAngle, a2);
-                            if (d1 < d2)
-                            {
-                                navPoly.Portals.Add(new SimpleLine((float)p1.X, (float)p1.Y, (float)p2.X, (float)p2.Y));
-                            }
-                            else
-                            {
-                                navPoly.Portals.Add(new SimpleLine((float)p2.X, (float)p2.Y, (float)p1.X, (float)p1.Y));
-                            }
-                        }
-                    }*/
-                    #endregion - Using areCollinear and SegmentOverlap END
 
                     #region    - Using common sense
                     // Here I know they do overlap
                     //      Calculate the portal between the two polygons 
                     //      - THIS NEEDS TO BE IN CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
-                    //SimpleLine navPolyEdge;
-                    //SimpleLine otherNavPolyEdge;
+                    // _GetSegmentOverlap() 
+                    //  returns horizontal: always left-to-right
+                    //  returns vertical: always bottom-to-top
                     SimpleLine portal;
                     // other is above
                     if (navPolyPolygon.Top == otherNavPolyPolygon.Bottom)
                     {
                         D.WriteLine($"       Other above -- Touching this Top ({navPolyPolygon.Top}) - other Bottom ({otherNavPolyPolygon.Bottom})");
 
-                        //navPolyEdge = navPoly.EdgeTop;
-                        //otherNavPolyEdge = otherNavPoly.EdgeBottom;
+                        portal = _GetSegmentOverlap(navPoly.EdgeTop, otherNavPoly.EdgeBottom, true, false);
 
-                        //portal = _GetEdgesOverlapHorisontal(navPoly.EdgeTop, otherNavPoly.EdgeBottom);
-
-                        portal = _GetTopEdgeOverlap(navPoly.EdgeTop, otherNavPoly.EdgeBottom);
+                        // Debug visuals
+                        if (portal != null)
+                            _DrawDebugVisualForPortal(portal.Start.X + 3f, portal.Start.Y - 3f, portal.End.X - 3f, portal.End.Y - 3f);
                     }
                     // other is below
                     else if (navPolyPolygon.Bottom == otherNavPolyPolygon.Top)
                     {
                         D.WriteLine($"       Other below -- Touching this Bottom ({navPolyPolygon.Bottom}) - other Top ({otherNavPolyPolygon.Top})");
 
-                        //navPolyEdge = navPoly.EdgeBottom;
-                        //otherNavPolyEdge = otherNavPoly.EdgeTop;
+                        portal = _GetSegmentOverlap(navPoly.EdgeBottom, otherNavPoly.EdgeTop, true, true);
 
-                        //portal = _GetEdgesOverlapHorisontal(navPoly.EdgeBottom, otherNavPoly.EdgeTop);
-
-                        //portal = new SimpleLine(portal.End, portal.Start);
-
-                        portal = _GetBottomEdgeOverlap(navPoly.EdgeBottom, otherNavPoly.EdgeTop);
+                        // Debug visuals
+                        if (portal != null)
+                            _DrawDebugVisualForPortal(portal.Start.X - 3f, portal.Start.Y + 3f, portal.End.X + 3f, portal.End.Y + 3f);
                     }
                     // other is to left
                     else if (navPolyPolygon.Left == otherNavPolyPolygon.Right)
                     {
                         D.WriteLine($"       Other to left -- Touching this Left ({navPolyPolygon.Left}) - other Right ({otherNavPolyPolygon.Right})");
 
-                        //navPolyEdge = navPoly.EdgeLeft;
-                        //otherNavPolyEdge = otherNavPoly.EdgeRight;
+                        portal = _GetSegmentOverlap(navPoly.EdgeLeft, otherNavPoly.EdgeRight, false, false);
 
-                        //portal = _GetEdgesOverlapVertical(navPoly.EdgeLeft, otherNavPoly.EdgeRight);
-
-                        portal = _GetLeftEdgeOverlap(navPoly.EdgeLeft, otherNavPoly.EdgeRight);
+                        // Debug visuals
+                        if (portal != null)
+                            _DrawDebugVisualForPortal(portal.Start.X + 3f, portal.Start.Y + 3f, portal.End.X + 3f, portal.End.Y - 3f);
                     }
                     // other is to right
                     else if (navPolyPolygon.Right == otherNavPolyPolygon.Left)
                     {
                         D.WriteLine($"       Other to right -- Touching this Right ({navPolyPolygon.Right}) - other Left ({otherNavPolyPolygon.Left})");
 
-                        //navPolyEdge = navPoly.EdgeRight;
-                        //otherNavPolyEdge = otherNavPoly.EdgeLeft;
+                        portal = _GetSegmentOverlap(navPoly.EdgeRight, otherNavPoly.EdgeLeft, false, true);
 
-                        //portal = _GetEdgesOverlapVertical(navPoly.EdgeRight, otherNavPoly.EdgeLeft);
-
-                        portal = _GetRightEdgeOverlap(navPoly.EdgeRight, otherNavPoly.EdgeLeft);
+                        // Debug visuals
+                        if (portal != null)
+                            _DrawDebugVisualForPortal(portal.Start.X - 3f, portal.Start.Y - 3f, portal.End.X - 3f, portal.End.Y + 3f);
                     }
                     // not touching
                     else
@@ -607,23 +557,30 @@ namespace FRBNavMesh
                         D.WriteLine($"       Not Touching");
                         continue;
                     }
+                    #endregion - Using common sense END
 
-                    //var portal = _GetSegmentOverlap(navPoly.EdgeTop, otherNavPoly.EdgeBottom);
-
-                    // -- Debug visuals
-                    if (portal != null)
+                    
+                    if (portal != null) // this check IS needed
                     {
                         navPoly.LinkTo(otherNavPoly, portal);
-                        Debug.ShowLine(portal, Color.Yellow);
+
+                    #region    -- Debug visuals
+                        /*Debug.ShowLine(portal, Color.Yellow);
+                        var circle = ShapeManager.AddCircle();
+                        circle.Radius = 6f;
+                        circle.Color = Color.Yellow;
+                        circle.X = (float)portal.Start.X;
+                        circle.Y = (float)portal.Start.Y;*/
                         Debug.ShowLine(navPolyPolygon.Position, otherNavPolyPolygon.Position, Debug.Gray32);
                     }
                     else
                         D.WriteLine($"       Not Touching");
-                    #endregion - Using common sense END
+                    #endregion -- Debug visuals END
                 }
             }
 
-            /*var sb = new StringBuilder("--------------\n");
+            /*// Debug
+            var sb = new StringBuilder("--------------\n");
             PositionedNode cNode;
             foreach (var tNode in _NavPolygons)
             {
@@ -636,7 +593,17 @@ namespace FRBNavMesh
             D.WriteLine(sb.ToString());*/
         }
 
-        // v1 phaser-navmesh
+        private void _DrawDebugVisualForPortal(double startX, double startY, double endX, double endY)
+        {
+            Debug.ShowLine(startX, startY, endX, endY, Color.Yellow);
+            var circle = ShapeManager.AddCircle();
+            circle.Radius = 3f;
+            circle.Color = Color.Yellow;
+            circle.X = (float)startX;
+            circle.Y = (float)startY;
+        }
+
+        // v4 phaser-navmesh updated
         /// <summary>Check two collinear line segments to see if they overlap by sorting the points.</summary>
         /// <param name="line1">Polygon's edge</param>
         /// <param name="line2">Other polygon's edge</param>
@@ -644,220 +611,59 @@ namespace FRBNavMesh
         /// <remarks>
         /// Algorithm source: http://stackoverflow.com/a/17152247
         /// </remarks>
-        private SimpleLine _GetSegmentOverlap(SimpleLine line1, SimpleLine line2) 
+        private SimpleLine _GetSegmentOverlap(SimpleLine line1, SimpleLine line2, bool horisontal, bool swapStartEnd) 
         {
-            var points = new RLineAndPoint[]
+            var pointsOfLines = new RLineAndPoint[]
             {
                 new RLineAndPoint { line = line1, point = line1.Start },
                 new RLineAndPoint { line = line1, point = line1.End },
                 new RLineAndPoint { line = line2, point = line2.Start },
                 new RLineAndPoint { line = line2, point = line2.End }
             };
-            /*points.sort(function(a, b) {
-                if (a.point.x < b.point.x) return -1;
-                else if (a.point.x > b.point.x) return 1;
-                else {
-                    if (a.point.y < b.point.y) return -1;
-                    else if (a.point.y > b.point.y) return 1;
-                    else return 0;
-                }
-            });*/
-            Array.Sort(
-                points, 
-                (a, b) => 
-                {
-                    if (a.point.X < b.point.X) return -1;
-                    else if (a.point.X > b.point.X) return 1;
-                    else
+
+            if (horisontal)
+            {
+                Array.Sort(
+                    pointsOfLines,
+                    (a, b) =>
                     {
+                        // If lines have same Y, sort by X
+                        if (a.point.X < b.point.X) return -1;
+                        else if (a.point.X > b.point.X) return 1;
+                        return 0;
+                    }
+                );
+            }
+            else
+            {
+                Array.Sort(
+                    pointsOfLines,
+                    (a, b) =>
+                    {
+                        // If lines have same X, sort by Y
                         if (a.point.Y < b.point.Y) return -1;
                         else if (a.point.Y > b.point.Y) return 1;
-                        else return 0;
+                        return 0;
                     }
-                }
-            );
+                );
+            }
             // If the first two points in the array come from the same line, no overlap
-            bool noOverlap = points[0].line == points[1].line;
+            bool noOverlap = pointsOfLines[0].line == pointsOfLines[1].line;
             // If the two middle points in the array are the same coordinates, then there is a
             // single point of overlap.
-            bool singlePointOverlap = points[1].point == points[2].point;
+            bool singlePointOverlap = pointsOfLines[1].point == pointsOfLines[2].point;
+
             if (noOverlap || singlePointOverlap)
+            {
                 return null;
+            }
             else
-                return new SimpleLine(points[1].point, points[2].point);
-        }
-
-        // v2 mine
-        private SimpleLine _GetEdgesOverlapVertical(SimpleLine edge, SimpleLine othersEdge) 
-        {
-            // * Svisle edged are always top (Start) to bottom (End)
-            // I only need Ys
-
-            // Check if edges are touching
-            // othersEdge.Start.Y must be more up than edge.End.Y
-            //      more up = more
-            // or
-            // edge.Start.Y must be more up othersEdge.End.Y
-            //      more up = more
-            if ( othersEdge.Start.Y > edge.End.Y || edge.Start.Y > othersEdge.End.Y )
             {
-                return new SimpleLine(
-                    edge.Start.X,
-                    Math.Min(edge.Start.Y, othersEdge.Start.Y),
-                    edge.Start.X,
-                    Math.Max(edge.End.Y, othersEdge.End.Y)
-                );
+                if (swapStartEnd)
+                    return new SimpleLine(pointsOfLines[2].point, pointsOfLines[1].point);
+                else
+                    return new SimpleLine(pointsOfLines[1].point, pointsOfLines[2].point);
             }
-
-            return null;
-        }
-        private SimpleLine _GetEdgesOverlapHorisontal(SimpleLine edge, SimpleLine othersEdge) 
-        {
-            // * Vodorovne edged are always left (Start) to right (End)
-            // I only need Xes
-
-            // Check if edges are touching
-            // othersEdge.Start.X must be more to left than edge.End.X
-            //      more to left = less
-            // or
-            // edge.Start.X must be more to left than othersEdge.End.X
-            //      more to left = less
-            if ( othersEdge.Start.X < edge.End.X || edge.Start.X < othersEdge.End.X )
-            {
-                //      Calculate the portal between the two polygons 
-                //      - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
-
-                return new SimpleLine(
-                    Math.Max(edge.Start.X, othersEdge.Start.X),
-                    edge.Start.Y,
-                    Math.Min(edge.End.X, othersEdge.End.X),
-                    edge.Start.Y
-                );
-            }
-
-            return null;
-        }
-
-        // v3 mine current
-        private SimpleLine _GetTopEdgeOverlap(SimpleLine edge, SimpleLine othersEdge) 
-        {
-            //if ( edge.Start.X > othersEdge.Start.X ) 
-            if ( edge.Start.X < othersEdge.End.X )
-            // other poly is more to right
-            {
-                // Calculate the portal between the two polygons 
-                // - THIS NEEDS TO BE IN CLOCKWISE ORDER, RELATIVE TO POLYGON
-
-                return new SimpleLine(
-                    othersEdge.Start.X,
-                    edge.Start.Y,
-                    edge.Start.X,
-                    edge.Start.Y
-                );
-            }
-            //else if (edge.End.X < othersEdge.End.X )
-            else if ( othersEdge.Start.X < edge.End.X )
-            // other poly is more to left
-            {
-                // Calculate the portal between the two polygons 
-                // - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO POLYGON
-
-                return new SimpleLine(
-                    edge.End.X,
-                    edge.Start.Y,
-                    othersEdge.End.X,
-                    edge.Start.Y
-                );
-            }
-
-            return null;
-        }
-        private SimpleLine _GetBottomEdgeOverlap(SimpleLine edge, SimpleLine othersEdge) 
-        {
-            //if ( edge.Start.X < othersEdge.Start.X ) 
-            if ( othersEdge.Start.X < edge.End.X )
-            // other poly is more to left
-            {
-                // Calculate the portal between the two polygons 
-                // - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
-
-                return new SimpleLine(
-                    othersEdge.Start.X,
-                    edge.Start.Y,
-                    edge.Start.X,
-                    edge.Start.Y
-                );
-            }
-            else if ( edge.Start.X < othersEdge.End.X )
-            //else if ( edge.End.X > othersEdge.End.X ) 
-            // other poly is more to right
-            {
-                // Calculate the portal between the two polygons 
-                // - THIS NEEDS TO BE IN COUNTER-CLOCKWISE ORDER, RELATIVE TO EACH POLYGON
-
-                return new SimpleLine(
-                    edge.End.X,
-                    edge.Start.Y,
-                    othersEdge.End.X,
-                    edge.Start.Y
-                );
-            }
-
-            return null;
-        }
-        private SimpleLine _GetLeftEdgeOverlap(SimpleLine edge, SimpleLine othersEdge) 
-        {
-            //if ( edge.Start.Y > othersEdge.Start.Y ) 
-            if ( othersEdge.Start.Y > edge.End.Y )
-            // other poly is more up
-            {
-                return new SimpleLine(
-                    edge.Start.X,
-                    othersEdge.Start.Y,
-                    edge.Start.X,
-                    edge.Start.Y
-                );
-            }
-            //else if ( edge.End.Y < othersEdge.End.Y ) 
-            else if ( edge.Start.Y > othersEdge.End.Y )
-            // other poly is more down
-            {
-                return new SimpleLine(
-                    edge.Start.X,
-                    edge.End.Y,
-                    edge.Start.X,
-                    othersEdge.End.Y
-                );
-            }
-
-            return null;
-        }
-        private SimpleLine _GetRightEdgeOverlap(SimpleLine edge, SimpleLine othersEdge) 
-        {
-            //if ( edge.Start.Y < othersEdge.Start.Y ) 
-            if ( edge.Start.Y > othersEdge.End.Y )
-            // other poly is more down
-            {
-                return new SimpleLine(
-                    edge.Start.X,
-                    othersEdge.Start.Y,
-                    edge.Start.X,
-                    edge.Start.Y
-                );
-            }
-            //else if ( edge.End.Y > othersEdge.End.Y ) 
-            else if ( othersEdge.Start.Y > edge.End.Y )
-            // other poly is more up
-            {
-                return new SimpleLine(
-                    edge.Start.X,
-                    edge.End.Y,
-                    edge.Start.X,
-                    othersEdge.End.Y
-                );
-            }
-
-            return null;
         }
 
         /*/// <summary>Project a point onto a polygon in the shortest distance possible.</summary>

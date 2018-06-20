@@ -115,6 +115,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataTypes\TileMapInfo.Generated.cs" />
+    <Compile Include="Entities\Arrows.cs" />
+    <Compile Include="Entities\Arrows.Generated.cs">
+      <DependentUpon>Arrows.cs</DependentUpon>
+    </Compile>
     <Compile Include="Entities\MarkerCross.cs" />
     <Compile Include="Entities\MarkerCross.Generated.cs">
       <DependentUpon>MarkerCross.cs</DependentUpon>
@@ -129,6 +133,10 @@
     <Compile Include="Screens\ScreenMain.cs" />
     <Compile Include="Screens\ScreenMain.Generated.cs">
       <DependentUpon>ScreenMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\ScreenOverlaps.cs" />
+    <Compile Include="Screens\ScreenOverlaps.Generated.cs">
+      <DependentUpon>ScreenOverlaps.cs</DependentUpon>
     </Compile>
     <Compile Include="Setup\CameraSetup.cs" />
     <Compile Include="StateInterpolation\Back.cs" />
