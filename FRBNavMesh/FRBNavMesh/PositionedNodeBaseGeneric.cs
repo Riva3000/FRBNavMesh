@@ -43,16 +43,23 @@ namespace FRBNavMesh
             get { return mLinksReadOnly; }
         }
 
-        protected NavArea mParentNavArea;
-        public NavArea ParentNavArea
+
+        protected NavArea<TNode,TLink> mParentNavArea;
+        public NavArea<TNode,TLink> ParentNavArea
         {
             get { return mParentNavArea; }
         }
+        protected NavArea<TNode,TLink> mOtherParentNavArea;
+        public NavArea<TNode,TLink> OtherParentNavArea
+        {
+            get { return mOtherParentNavArea; }
+        }
 
-        /*protected SimpleLine mPortal1;
-        protected int mPortal1ParentAreaId;
-        protected SimpleLine mPortal2;
-        protected int mPortal2ParentAreaId;*/
+        protected SimpleLine mPortalSide1;
+        protected int mPortalSide1ParentAreaId;
+        protected SimpleLine mPortalSide2;
+        protected int mPortalSide2ParentAreaId;
+
 
         #region    -- A* internal properties
         public AStarState AStarState;
@@ -189,14 +196,21 @@ namespace FRBNavMesh
         }
 
         /// <summary>Creates a new PositionedNode.</summary>
-        public static TNode Create(int id, NavArea parentNavArea, SimpleLine portal)
+        public static TNode Create(int id, NavArea<TNode,TLink> parentNavArea, NavArea<TNode,TLink> otherParentNavArea, SimpleLine portalForFirstParent)
         {
-            Point portalCenter = _LineCenter(portal);
+            Point portalCenter = _LineCenter(portalForFirstParent);
 
             var node = new TNode();
             node.mID = id;
+
             node.mParentNavArea = parentNavArea;
-            node.mPortal = portal;
+            node.mOtherParentNavArea = otherParentNavArea;
+
+            node.mPortalSide1 = portalForFirstParent;
+            node.mPortalSide1ParentAreaId = parentNavArea.Id;
+            node.mPortalSide2 = NavMesh<TNode, TLink>._GetInvertedLine(portalForFirstParent);
+            node.mPortalSide2ParentAreaId = otherParentNavArea.Id;
+
             node.Position.X = (float)portalCenter.X;
             node.Position.Y = (float)portalCenter.Y;
             //node.mActive = true;
@@ -216,24 +230,26 @@ namespace FRBNavMesh
                        );
         }
 
-        /*public SimpleLine GetPortalSideFor(TNode otherPortalNode)
+        public SimpleLine GetPortalSideFor(NavArea<TNode,TLink> navArea)
         {
-            return GetPortalSideFor(otherPortalNode.ID);
+            return GetPortalSideFor(navArea.Id);
         }
-        public SimpleLine GetPortalSideFor(int otherPortalNodeID)
+        public SimpleLine GetPortalSideFor(int navAreaID)
         {
-            if (mPortal1ParentAreaId == otherPortalNodeID)
-                return mPortal1;
+            if (mPortalSide1ParentAreaId == navAreaID)
+                return mPortalSide1;
 #if DEBUG
-            else if (mPortal2ParentAreaId == otherPortalNodeID)
-                return mPortal2;
+            else if (mPortalSide2ParentAreaId == navAreaID)
+                return mPortalSide2;
             else
-                throw new ArgumentException("otherPortalNodeID", "Other PortalNode not connected to this PortalNode.");
+                throw new ArgumentException("navAreaID", "NavArea not connected to this PortalNode.");
 #else
             else
-                return mPortal2;
+                return mPortalSide2;
 #endif
-        }*/
+        }
+
+
 
         // --- Links
         #region XML Docs
@@ -298,17 +314,17 @@ namespace FRBNavMesh
             return false;
         }
 
-        public void LinkTo(TNode nodeToLinkTo/*, SimpleLine portalForThisNode*/)
+        public void LinkTo(TNode nodeToLinkTo, SimpleLine portalForThisNode)
         {
 #if DEBUG
 			if (nodeToLinkTo == this)
 				throw new ArgumentException("Cannot have a node link to itself");
-            /*if (portalForThisNode == null)
-				throw new ArgumentNullException("portal");*/
+            if (portalForThisNode == null)
+				throw new ArgumentNullException("portal");
 #endif
             float distanceToTravel = (Position - nodeToLinkTo.Position).Length();
 
-            LinkTo(nodeToLinkTo, distanceToTravel/*, portalForThisNode*/);
+            LinkTo(nodeToLinkTo, distanceToTravel, portalForThisNode);
         }
 
 #region XML Docs
@@ -323,9 +339,9 @@ namespace FRBNavMesh
         /// <param name="nodeToLinkTo">The other PositionedNode to create Links between.</param>
         /// <param name="costTo">The cost to travel between this and the argument nodeToLinkTo.</param>
 #endregion
-        public void LinkTo(TNode nodeToLinkTo, float costTo/*, SimpleLine portalForThisNode*/)
+        public void LinkTo(TNode nodeToLinkTo, float costTo, SimpleLine portalForThisNode)
         {
-            LinkTo(nodeToLinkTo, costTo, costTo/*, portalForThisNode*/);
+            LinkTo(nodeToLinkTo, costTo, costTo, portalForThisNode);
         }
 
 #region XML Docs
@@ -341,7 +357,7 @@ namespace FRBNavMesh
         /// <param name="costTo">The cost to travel from this to the argument nodeToLinkTo.</param>
         /// <param name="costFrom">The cost to travel from the nodeToLinkTo back to this.</param>
 #endregion
-        public void LinkTo(TNode nodeToLinkTo, float costTo, float costFrom/*, SimpleLine portalForThisNode*/)
+        public void LinkTo(TNode nodeToLinkTo, float costTo, float costFrom, SimpleLine portalForThisNode)
         {
 #if DEBUG
 			if (nodeToLinkTo == this)
@@ -354,7 +370,7 @@ namespace FRBNavMesh
                 if (mLinks[i].NodeLinkingTo == nodeToLinkTo)
                 {
                     mLinks[i].Cost = costTo;
-                    //mLinks[i].Portal = portalForThisNode;
+                    mLinks[i].Portal = portalForThisNode;
                     updated = true;
                     break;
                 }
@@ -362,7 +378,7 @@ namespace FRBNavMesh
             if (!updated)
             {
                 //mLinks.Add(new TLink(nodeToLinkTo, costTo));
-                mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo/*, portalForThisNode*/) );
+                mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo, portalForThisNode) );
             }
 
             // Now do the same for the other node
@@ -375,7 +391,7 @@ namespace FRBNavMesh
 
                     /*nodeToLinkTo.mLinks[i].Portal.Start = portalForThisNode.End;
                     nodeToLinkTo.mLinks[i].Portal.End = portalForThisNode.Start;*/
-                    //nodeToLinkTo.mLinks[i].Portal = new SimpleLine(portalForThisNode.End, portalForThisNode.Start);
+                    nodeToLinkTo.mLinks[i].Portal = new SimpleLine(portalForThisNode.End, portalForThisNode.Start);
 
                     updated = true;
                     break;
@@ -384,7 +400,7 @@ namespace FRBNavMesh
             if (!updated)
             {
                 //nodeToLinkTo.mLinks.Add(new TLink(this, costFrom));
-                nodeToLinkTo.mLinks.Add( LinkBase<TLink, TNode>.Create(this as TNode, costFrom/*, new SimpleLine(portalForThisNode.End, portalForThisNode.Start)*/) );
+                nodeToLinkTo.mLinks.Add( LinkBase<TLink, TNode>.Create(this as TNode, costFrom, new SimpleLine(portalForThisNode.End, portalForThisNode.Start)) );
             }
         }
 
@@ -400,7 +416,7 @@ namespace FRBNavMesh
         /// <param name="nodeToLinkTo">The PositionedNode to create a link to.</param>
         /// <param name="costTo">The cost to travel from this to the argument nodeToLinkTo.</param>
 #endregion
-        public void LinkToOneWay(TNode nodeToLinkTo, float costTo/*, SimpleLine portalForThisNode*/)
+        public void LinkToOneWay(TNode nodeToLinkTo, float costTo, SimpleLine portalForThisNode)
         {
             foreach (TLink link in mLinks)
             {
@@ -411,7 +427,7 @@ namespace FRBNavMesh
                 }
             }
 
-            mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo/*, portalForThisNode*/) );
+            mLinks.Add( LinkBase<TLink, TNode>.Create(nodeToLinkTo, costTo, portalForThisNode) );
         }
         // --- Links END
 
@@ -437,7 +453,7 @@ namespace FRBNavMesh
         public override string ToString()
         {
             //return mName + string.Format(" ({0},{1},{2})", X, Y, Z);
-            return Id + string.Format(" ({0},{1},{2})", X, Y, Z);
+            return ID + string.Format(" ({0},{1},{2})", X, Y, Z);
         }
         // --- Other END
 

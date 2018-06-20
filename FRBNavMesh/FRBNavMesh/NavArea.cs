@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace FRBNavMesh
 {
-    public class NavArea
+    public class NavArea<TNode, TLink>
+        where TNode : PositionedNodeBase<TLink, TNode>, new()
+        where TLink : LinkBase<TLink, TNode>, new()
     {
         public readonly AxisAlignedRectangle Polygon;
 
 
-        public readonly List<PositionedNode> Portals;
+        public readonly List<PositionedNodeBase<TLink, TNode>> Portals;
 
         public readonly int Id;
 
@@ -34,7 +36,7 @@ namespace FRBNavMesh
 
         public NavArea(AxisAlignedRectangle polygon, int id)
         {
-            Portals = new List<PositionedNode>();
+            Portals = new List<PositionedNodeBase<TLink, TNode>>();
 
             Id = id;
             Polygon = polygon;

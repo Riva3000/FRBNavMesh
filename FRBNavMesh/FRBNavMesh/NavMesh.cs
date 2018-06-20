@@ -43,7 +43,7 @@ namespace FRBNavMesh
         where TNode : PositionedNodeBase<TLink, TNode>, new()
         where TLink : LinkBase<TLink, TNode>, new()
     {
-        public readonly List<NavArea> NavAreas;
+        public readonly List< NavArea<TNode, TLink> > NavAreas;
         public readonly List<TNode> PortalNodes;
 
         #region    -- A*
@@ -68,10 +68,10 @@ namespace FRBNavMesh
             //_meshShrinkAmount = meshShrinkAmount;
 
             // Construct NavArea instances for each polygon
-            NavAreas = new List<NavArea>(polygons.Count);
+            NavAreas = new List<NavArea<TNode,TLink>>(polygons.Count);
             for (int i = 0; i < polygons.Count; i++)
             {
-                NavAreas.Add( new NavArea(polygons[i], i) );
+                NavAreas.Add( new NavArea<TNode,TLink>(polygons[i], i) );
             }
 
             PortalNodes = new List<TNode>(polygons.Count * 3);
@@ -107,8 +107,8 @@ namespace FRBNavMesh
         public List<Point> FindPath(Point startPoint, Point endPoint, out List<TNode> nodesPath, bool drawPolyPath = false, bool drawFinalPath = false)
         {
             #region    --- Find the closest poly for the starting and ending point
-            TNode startPoly = FindNavRectFromPoint(ref startPoint);
-            TNode endPoly = FindNavRectFromPoint(ref endPoint);
+            NavArea<TNode, TLink> startArea = FindNavRectFromPoint(ref startPoint);
+            NavArea<TNode, TLink> endArea = FindNavRectFromPoint(ref endPoint);
 
             #region    If the start point wasn't inside a polygon, run a more liberal check that allows a point
             /*
@@ -154,18 +154,18 @@ namespace FRBNavMesh
 
             // No matching polygons locations for the start or end, so no path found
             // R: = start or end point not on nav mesh
-            if (startPoly == null || endPoly == null)
+            if (startArea == null || endArea == null)
             {
                 nodesPath = null;
                 return null;
             }
 
             // If the start and end polygons are the same, return a direct path
-            if (startPoly == endPoly)
+            if (startArea == endArea)
             {
                 List<Point> pointsPath = new List<Point> { startPoint, endPoint };
                 //if (drawFinalPath) this.debugDrawPath(phaserPath, 0xffd900, 10);
-                nodesPath = new List<TNode> { startPoly }; // @ can return null
+                nodesPath = new List<TNode> { startArea }; // @ can return null
                 return pointsPath;
             }
             #endregion --- Find the closest poly for the starting and ending point END
@@ -179,7 +179,7 @@ namespace FRBNavMesh
                                         new JavasciptAstar.Astar.Options<NavPoly> { heuristic = this._Graph.navHeuristic }
                                   );*/
             nodesPath = new List<TNode>();
-            GetPath(startPoly, endPoly, nodesPath);
+            GetPath(startArea, endArea, nodesPath);
 
             // While the start and end polygons may be valid, no path between them
             if (nodesPath.Count == 0)
@@ -265,30 +265,30 @@ namespace FRBNavMesh
 
         /// <summary>Goes through all Nodes and ties to find Node which rect the point is inside of.</summary>
         /// <returns>Node of which rect the point is inside of, or null if point is not inside any node's rect.</returns>
-        public TNode FindNavRectFromPoint(ref Point point)
+        public NavArea<TNode, TLink> FindNavRectFromPoint(ref Point point)
         {
-            TNode poly = null;
+            NavArea<TNode, TLink> containingNavArea = null;
             double bestDistance = double.PositiveInfinity;
             double d;
             float r;
 
             // Find the closest poly for the starting and ending point
-            foreach (var navPoly in this.PortalNodes)
+            foreach (var navArea in NavAreas)
             {
-                r = navPoly.Polygon.BoundingRadius;
+                r = navArea.Polygon.BoundingRadius;
                 // Start
                 //d = navPoly.centroid.Distance(startPoint);
-                d = RCommonFRB.Geometry.Distance2D(ref navPoly.Polygon.Position, ref point);
-                if (d <= bestDistance && d <= r && navPoly.Polygon.IsPointInside( (float)point.X, (float)point.Y) ) // @
+                d = RCommonFRB.Geometry.Distance2D(ref navArea.Polygon.Position, ref point);
+                if (d <= bestDistance && d <= r && navArea.Polygon.IsPointInside( (float)point.X, (float)point.Y) ) // @
                 {
-                    poly = navPoly;
+                    containingNavArea = navArea;
                     bestDistance = d;
                 }
             }
 
             // No matching polygons locations for the start or end, so no path found
             // R: = start or end point not on nav mesh
-            return poly;
+            return containingNavArea;
         }
 
         #region    -- A*
@@ -449,8 +449,8 @@ namespace FRBNavMesh
             D.WriteLine(" * NavMesh._CalculateNeighbors()");
 
             // Fill out the neighbor information for each navpoly
-            NavArea navArea;
-            NavArea otherNavArea;
+            NavArea<TNode, TLink> navArea;
+            NavArea<TNode, TLink> otherNavArea;
             AxisAlignedRectangle navAreaPolygon;
             AxisAlignedRectangle otherNavAreaPolygon;
             for (int i = 0; i < NavAreas.Count; i++)
@@ -561,16 +561,21 @@ namespace FRBNavMesh
                     if (portal != null) // this check IS needed
                     {
                         // Found portal between 2 NavAreas
-                        // - have to add 2 portal Nodes
+                        // - have to add portal Node
+                        var thisPortalNode = PositionedNodeBase<TLink, TNode>.Create(i * 10 + j, navArea, otherNavArea, portal);
                         //
-                        // - assign one to this NavArea
-                        // - assign to one this portal
+                        // - have to link this portal node to all other Portal Nodes in both this and other NavArea
+                        //   BUT at this point I dont know all Portal Nodes in this or the other NavArea
+                        //   => store both portal lines (sides) in this Portal Node
+                        //   => store both NavAreas in this Portal Node
+                        //   => do the linking at the end of NavMesh creation
                         //
-                        // - assign other to other NavArea
-                        // - assign to other an inverted portal
+                        //   - assign Portal Node to this NavArea
+                        navArea.Portals.Add(thisPortalNode);
                         //
-                        var thisPortalNode = PositionedNodeBase<TLink, TNode>.Create(i * 10 + j, navArea, portal);
-                        var otherPortalNode = PositionedNodeBase<TLink, TNode>.Create(j * 10 + i, otherNavArea, _InvertedLine(portal));
+                        //   - assign Portal Node to other NavArea
+                        otherNavArea.Portals.Add(thisPortalNode);
+                        //
                         
                         //navArea.LinkTo(otherNavArea, portal);
 
@@ -589,9 +594,33 @@ namespace FRBNavMesh
                 }// for other j
             }// for one i
 
-            foreach (var navArea in NavAreas)
+            // Link Portal Nodes together inside each NavArea
+            TNode firstPortalNode;
+            TNode otherPortalNode;
+            for (int i = 0; i < NavAreas.Count; i++)
             {
+                navArea = NavAreas[i];
 
+                /*for (int j = i + 1; j < NavAreas.Count; j++)
+                {
+                    otherNavArea = NavAreas[j];
+                }*/
+
+                if (navArea.Portals.Count > 1)
+                {
+                    firstPortalNode = navArea.Portals[0];
+
+                    for (int iPortalNode = 1; iPortalNode < navArea.Portals.Count; iPortalNode++)
+                    {
+                        otherPortalNode = navArea.Portals[iPortalNode];
+
+                        firstPortalNode.LinkTo(otherPortalNode, firstPortalNode.GetPortalSideFor(navArea));
+
+                        #region    -- Debug visuals
+                        Debug.ShowLine(firstPortalNode.Position, otherPortalNode.Position, Debug.Gray32);
+                        #endregion -- Debug visuals END
+                    }
+                }
             }
 
 
@@ -731,7 +760,7 @@ namespace FRBNavMesh
             return p;
         }
 
-        private SimpleLine _InvertedLine(SimpleLine line)
+        public static SimpleLine _GetInvertedLine(SimpleLine line)
         {
             return new SimpleLine(line.End, line.Start);
         }
