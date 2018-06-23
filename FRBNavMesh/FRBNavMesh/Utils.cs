@@ -7,7 +7,7 @@ using System.Text;
 namespace FRBNavMesh
 {
     /// <summary>R: FIN</summary>
-    static class Utils
+    internal class Utils
     {
         /*
         * Twice the area of the triangle formed by a, b and c

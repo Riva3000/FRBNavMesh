@@ -1,5 +1,5 @@
 ﻿//#define RemovedForTesting
-#define o // if defined, classes methods write debug info into debug output
+//#define o // if defined, classes methods write debug info into debug output
 
 using FlatRedBall.Math.Geometry;
 using System;
@@ -15,12 +15,11 @@ using RCommonFRB;
 using System.Diagnostics;
 using D = System.Diagnostics.Debug;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.ObjectModel;
 //using FDebug = FRBNavMesh.Debug;
 
 namespace FRBNavMesh
 {
-    //using FDebug = FRBNavMesh.Debug;
-
     /*
     * The workhorse that represents a navigation mesh built from a series of polygons. Once built, the
     * mesh can be asked for a path from one point to another point. It has debug methods for 
@@ -45,20 +44,49 @@ namespace FRBNavMesh
         }
     }
 
+    /// <summary>
+    /// The workhorse that represents a navigation mesh built from a series of axis-allinged rectangles.
+    /// Once built, the mesh can be asked for a path from one point to another point.
+    /// <para>
+    /// Some internal terminology usage:
+    ///  - neighbor: a polygon that shares part of an edge with another polygon
+    ///  - portal / portal node: when two neighbor's have edges that overlap, the portal is the overlapping line segment
+    ///  - channel: the path of polygons from starting point to end point
+    ///  - pull the string: run the funnel algorithm on the channel so that the path hugs the edges of the
+    ///    channel. Equivalent to having a string snaking through a hallway and then pulling it taut.
+    /// </para>
+    /// <para>
+    /// This class is generic, so both class for PortalNodes and Links can be extended to contain additional 
+    /// data or functionality for your specific implementation.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TNode">Class representing Portal Node. Has to be concrete class derived from PortalNodeBase.</typeparam>
+    /// <typeparam name="TLink">Class representing link between Nodes. Has to be concrete class derived from LinkBase.</typeparam>
     public class NavMesh<TNode, TLink>
         where TNode : PortalNodeBase<TLink, TNode>, new()
         where TLink : LinkBase<TLink, TNode>, new()
     {
         #region    --- Vars
-        public readonly List<NavArea<TNode, TLink>> NavAreas;
-        public readonly List<TNode> PortalNodes;
+        protected readonly List<NavArea<TNode, TLink>> _NavAreas;
+        protected readonly ReadOnlyCollection< NavArea<TNode, TLink> > _NavAreasReadonly;
+        /// <summary>
+        /// Read-only list of recangular areas that define walkable space for this NavMesh.
+        /// </summary>
+        public ReadOnlyCollection< NavArea<TNode, TLink> > NavAreas { get { return _NavAreasReadonly; } }
+
+        protected readonly List<TNode> _PortalNodes;
+        protected readonly ReadOnlyCollection<TNode> _PortalNodesReadonly;
+        /// <summary>
+        /// Read-only list of Nodes, that represent "portals" that path finsing agent can traverse between two areas in this NavMesh.
+        /// </summary>
+        public ReadOnlyCollection<TNode> PortalNodes { get { return _PortalNodesReadonly; } }
 
         #region    -- For A*
         // This reduces memory allocation during runtime and also reduces the argument list size
         protected List<TNode> _ClosedList = new List<TNode>(30);
         protected List<TNode> _OpenList = new List<TNode>(30);
 
-        protected float mShortestPath;
+        protected float _ShortestPath;
         #endregion -- For A* END 
         #endregion --- Vars END
 
@@ -67,22 +95,24 @@ namespace FRBNavMesh
 
 
 
-        /// <summary></summary>
-        /// <param name="polygons"></param>
+        /// <summary>Create new NavMesh to be used for path finding.</summary>
+        /// <param name="rectangles">Collection of FlatRedBall AxisAllignedRectangles 
+        /// new NavMesh will use as base for definig it's areas and portals.</param>
         /// <param name="meshShrinkAmount">The amount (in pixels) that the navmesh has been
         /// shrunk around obstacles (a.k.a the amount obstacles have been expanded)</param>
-        public NavMesh(IList<AxisAlignedRectangle> polygons /*, int meshShrinkAmount = 0*/)
+        public NavMesh(IList<AxisAlignedRectangle> rectangles /*, int meshShrinkAmount = 0*/)
         {
-            //_meshShrinkAmount = meshShrinkAmount;
-
             // Construct NavArea instances for each polygon
-            NavAreas = new List<NavArea<TNode,TLink>>(polygons.Count);
-            for (int i = 0; i < polygons.Count; i++)
+            _NavAreas = new List<NavArea<TNode,TLink>>(rectangles.Count);
+            _NavAreasReadonly = new ReadOnlyCollection<NavArea<TNode, TLink>>(_NavAreas);
+            for (int i = 0; i < rectangles.Count; i++)
             {
-                NavAreas.Add( new NavArea<TNode,TLink>(polygons[i], i) );
+                _NavAreas.Add( new NavArea<TNode,TLink>(rectangles[i], i) );
             }
 
-            PortalNodes = new List<TNode>(polygons.Count * 3);
+            // Connect the NavAreas
+            _PortalNodes = new List<TNode>(rectangles.Count * 3);
+            _PortalNodesReadonly = new ReadOnlyCollection<TNode>(_PortalNodes);
 
             _CalculateNeighbors();
         }
@@ -91,6 +121,7 @@ namespace FRBNavMesh
 
 
 
+        #region    --- Methods
 
         /// <summary>Find a path from the start point to the end point using this nav mesh.</summary>
         /// <param name="startPoint"></param>
@@ -129,8 +160,13 @@ namespace FRBNavMesh
             // --- Search!
             portalNodesPath = new List<TNode>();
             GetPath(
+#if DEBUG
                 PortalNodeBase<TLink, TNode>.CreateFakeNodeDebug(ref startPoint, startArea.Portals, false, startArea),
-                PortalNodeBase<TLink, TNode>.CreateFakeNodeDebug(ref endPoint, endArea.Portals, true, endArea), 
+                PortalNodeBase<TLink, TNode>.CreateFakeNodeDebug(ref endPoint, endArea.Portals, true, endArea),
+#else
+                PortalNodeBase<TLink, TNode>.CreateFakeStartNode(ref startPoint, startArea.Portals),
+                PortalNodeBase<TLink, TNode>.CreateFakeEndNode(ref endPoint, endArea.Portals, endArea),
+#endif
                 portalNodesPath
             );
 
@@ -147,6 +183,7 @@ namespace FRBNavMesh
 
             #region    --- Funnel algorithm
             // We have a path, so now time for the funnel algorithm
+#if o
             D.WriteLine("======== Path search ========");
             D.WriteLine("  --- Path ---");
             foreach (var pathNode in portalNodesPath)
@@ -154,6 +191,7 @@ namespace FRBNavMesh
                 D.WriteLine("    " + pathNode.ID);
             }
             D.WriteLine("  --- Channel ---");
+#endif
             Channel channel = new Channel();
             channel.Add(startPoint);
 
@@ -165,27 +203,30 @@ namespace FRBNavMesh
             {
                 pathPortalNode = portalNodesPath[i];
                 nextPathPortalNode = portalNodesPath[i + 1];
-
+#if o
                 D.WriteLine($"    pathPortalNode: {pathPortalNode.ID} and pathPortalNode: {nextPathPortalNode.ID}");
-
+#endif
                 // Find the portal
                 portal = null;
                 foreach (var link in pathPortalNode.Links)
                 {
                     //if ( link.NodeLinkingTo.ReferenceEquals(nextPathPortalNode) )
-                    if ( link.NodeLinkingTo.ID == nextPathPortalNode.ID )
+                    if (link.NodeLinkingTo.ID == nextPathPortalNode.ID)
                     {
+#if o
                         D.WriteLine($"      link to {link.NodeLinkingTo.ID} - link found and portal added");
-
+#endif
                         portal = link.Portal;
                         // Push the portal vertices into the channel
                         channel.Add(portal.Start, portal.End);
                         break;
                     }
+#if o
                     else
                     {
                         D.WriteLine($"      link to {link.NodeLinkingTo.ID} - link NOT found !");
                     }
+#endif
                 }
             }
 
@@ -197,7 +238,7 @@ namespace FRBNavMesh
 
             PortalNodeBase<TLink, TNode>.CleanupFakeEndNodeLinks(endArea.Portals);
 
-            // Clone path, excluding duplicates
+            // Clone path, excluding duplicates - needed ? @
             Point? lastPoint = null;
             List<Point> finalPointsPath = new List<Point>();
             foreach (var point in channel.Path)
@@ -224,12 +265,12 @@ namespace FRBNavMesh
             float r;
 
             // Find the closest poly for the starting and ending point
-            foreach (var navArea in NavAreas)
+            foreach (var navArea in _NavAreas)
             {
                 r = navArea.Polygon.BoundingRadius;
                 // Start
                 d = RCommonFRB.Geometry.Distance2D(ref navArea.Polygon.Position, ref point);
-                if (d <= bestDistance && d <= r && navArea.Polygon.IsPointInside( (float)point.X, (float)point.Y) ) // @
+                if (d <= bestDistance && d <= r && navArea.Polygon.IsPointInside((float)point.X, (float)point.Y)) // @
                 {
                     containingNavArea = navArea;
                     bestDistance = d;
@@ -266,7 +307,7 @@ namespace FRBNavMesh
                 _OpenList.Add(start);
                 start.AStarState = AStarState.Open;
 
-                mShortestPath = float.PositiveInfinity;
+                _ShortestPath = float.PositiveInfinity;
                 while (_OpenList.Count != 0)
                 {
                     _GetPathCalculate(_OpenList[0], end);
@@ -326,7 +367,7 @@ namespace FRBNavMesh
                 {
                     float cost = currentNode.mCostToGetHere + currentLink.Cost;
 
-                    if (cost < mShortestPath)
+                    if (cost < _ShortestPath)
                     {
                         partOfOpen = nodeLinkingTo.AStarState == AStarState.Open;
 
@@ -339,7 +380,7 @@ namespace FRBNavMesh
 
                             if (nodeLinkingTo == endNode)
                             {
-                                mShortestPath = nodeLinkingTo.mCostToGetHere;
+                                _ShortestPath = nodeLinkingTo.mCostToGetHere;
                                 /// September 6th, 2012 - Jesse Crafts-Finch
                                 /// Removed the break because it prevents the currentNode from checking
                                 ///  alternative links which may end up creating a cheaper path to the endNode.                                
@@ -394,8 +435,9 @@ namespace FRBNavMesh
 
         private void _CalculateNeighbors()
         {
+#if o
             D.WriteLine(" * NavMesh._CalculateNeighbors()");
-
+#endif
             // Fill out the neighbor information for each NavArea
             // Find and create Portals (Portal Nodes) for each NavArea
             #region    
@@ -407,21 +449,21 @@ namespace FRBNavMesh
             TNode otherPortalNode;
             SimpleLine portal;
             int portalId = 1;
-            for (int i = 0; i < NavAreas.Count; i++)
+            for (int i = 0; i < _NavAreas.Count; i++)
             {
-                navArea = NavAreas[i];
+                navArea = _NavAreas[i];
                 navAreaPolygon = navArea.Polygon;
-
+#if o
                 D.WriteLine("   navArea: " + navAreaPolygon.Name);
                 //(navArea as PositionedNode).CheckedAsMain = true;
-
-                for (int j = i + 1; j < NavAreas.Count; j++)
+#endif
+                for (int j = i + 1; j < _NavAreas.Count; j++)
                 {
-                    otherNavArea = NavAreas[j];
+                    otherNavArea = _NavAreas[j];
                     otherNavAreaPolygon = otherNavArea.Polygon;
-
+#if o
                     D.WriteLine("     otherNavPoly: " + otherNavAreaPolygon.Name);
-
+#endif
                     #region    - Check polygons distance
                     // Check if the other navpoly is within range to touch
                     // Distance between centers
@@ -431,11 +473,14 @@ namespace FRBNavMesh
                     if (distanceBetweenCenters >= navAreaPolygon.BoundingRadius + otherNavAreaPolygon.BoundingRadius)
                     {
                         // Not in range => proceed to another navpoly
+#if o
                         D.WriteLine($"       Not in range (distanceBetweenCenters: {distanceBetweenCenters} totalRadii: {navAreaPolygon.BoundingRadius + otherNavAreaPolygon.BoundingRadius})");
+#endif
                         continue;
                     }
-
-                    D.WriteLine($"       In range (distanceBetweenCenters: {distanceBetweenCenters} totalRadii: {navAreaPolygon.BoundingRadius + otherNavAreaPolygon.BoundingRadius})");
+#if o
+                    D.WriteLine($"       In range (distanceBetweenCenters: {distanceBetweenCenters} totalRadii: {navAreaPolygon.BoundingRadius + otherNavAreaPolygon.BoundingRadius})");\
+#endif
                     #endregion - Check polygons distance END
 
                     // The are in range, so check each edge pairing
@@ -451,64 +496,74 @@ namespace FRBNavMesh
                     // other is above
                     if (navAreaPolygon.Top == otherNavAreaPolygon.Bottom)
                     {
+#if o
                         D.WriteLine($"       Other above -- Touching this Top ({navAreaPolygon.Top}) - other Bottom ({otherNavAreaPolygon.Bottom})");
-
+#endif
                         portal = _GetSegmentOverlap(navArea.EdgeTop, otherNavArea.EdgeBottom, true, false);
-
+#if o
                         // Debug visuals
                         if (portal != null)
                         {
                             //_DrawDebugVisualForPortal(portal.Start.X + 3f, portal.Start.Y - 3f, portal.End.X - 3f, portal.End.Y - 3f);
                             Debug.ShowLine(portal, Color.Yellow);
                         }
+#endif
                     }
                     // other is below
                     else if (navAreaPolygon.Bottom == otherNavAreaPolygon.Top)
                     {
+#if o
                         D.WriteLine($"       Other below -- Touching this Bottom ({navAreaPolygon.Bottom}) - other Top ({otherNavAreaPolygon.Top})");
-
+#endif
                         portal = _GetSegmentOverlap(navArea.EdgeBottom, otherNavArea.EdgeTop, true, true);
-
+#if o
                         // Debug visuals
                         if (portal != null)
                         {
                             //_DrawDebugVisualForPortal(portal.Start.X - 3f, portal.Start.Y + 3f, portal.End.X + 3f, portal.End.Y + 3f);
                             Debug.ShowLine(portal, Color.Yellow);
                         }
+#endif
                     }
                     // other is to left
                     else if (navAreaPolygon.Left == otherNavAreaPolygon.Right)
                     {
+#if o
                         D.WriteLine($"       Other to left -- Touching this Left ({navAreaPolygon.Left}) - other Right ({otherNavAreaPolygon.Right})");
-
+#endif
                         portal = _GetSegmentOverlap(navArea.EdgeLeft, otherNavArea.EdgeRight, false, false);
-
+#if o
                         // Debug visuals
                         if (portal != null)
                         {
                             //_DrawDebugVisualForPortal(portal.Start.X + 3f, portal.Start.Y + 3f, portal.End.X + 3f, portal.End.Y - 3f);
                             Debug.ShowLine(portal, Color.Yellow);
                         }
+#endif
                     }
                     // other is to right
                     else if (navAreaPolygon.Right == otherNavAreaPolygon.Left)
                     {
+#if o
                         D.WriteLine($"       Other to right -- Touching this Right ({navAreaPolygon.Right}) - other Left ({otherNavAreaPolygon.Left})");
-
+#endif
                         portal = _GetSegmentOverlap(navArea.EdgeRight, otherNavArea.EdgeLeft, false, true);
-
+#if o
                         // Debug visuals
                         if (portal != null)
                         {
                             //_DrawDebugVisualForPortal(portal.Start.X - 3f, portal.Start.Y - 3f, portal.End.X - 3f, portal.End.Y + 3f);
                             Debug.ShowLine(portal, Color.Yellow);
                         }
+#endif
                     }
                     // not touching
                     else
                     {
                         // Not actually touching => proceed to another navpoly
+#if o
                         D.WriteLine($"       Not Touching");
+#endif
                         continue;
                     }
                     #endregion - Using common sense END
@@ -535,8 +590,8 @@ namespace FRBNavMesh
                         //
 
                         //navArea.LinkTo(otherNavArea, portal);
-
-                    #region    -- Debug / visuals
+#if o
+                        #region    -- Debug / visuals
                         Debug.ShowText(ref portalNode.Position, portalNode.ID.ToString());
 
                         /*Debug.ShowLine(portal, Color.Yellow);
@@ -546,12 +601,16 @@ namespace FRBNavMesh
                         circle.X = (float)portal.Start.X;
                         circle.Y = (float)portal.Start.Y;
                         Debug.ShowLine(navAreaPolygon.Position, otherNavAreaPolygon.Position, Debug.Gray32);*/
+                        #endregion -- Debug / visuals END
+#endif
                     }
+#if o
                     else
                     { 
                         D.WriteLine($"       Not Touching");
-                    #endregion -- Debug / visuals END
+                    
                     }
+#endif
 
                 }// for other j
             }// for one i 
@@ -562,36 +621,45 @@ namespace FRBNavMesh
             navArea = null;
             portalNode = null;
             otherPortalNode = null;
+#if o
             //D.WriteLine("========== Portals' Linking ==========");
-            for (int i = 0; i < NavAreas.Count; i++)
+#endif
+            for (int i = 0; i < _NavAreas.Count; i++)
             {
-                navArea = NavAreas[i];
-
+                navArea = _NavAreas[i];
+#if o
                 //D.WriteLine("NavArea Portals: " + navArea.Portals.Count + " " + navArea.Polygon.Name);
-
+#endif
                 if (navArea.Portals.Count > 1)
                 {
                     for (int iPortalNode = 0; iPortalNode < navArea.Portals.Count; iPortalNode++)
                     {
                         portalNode = navArea.Portals[iPortalNode]; // as TNode;
-
+#if o
                         //D.WriteLine("  PortalNode " + portalNode.ID);
-
+#endif
                         for (int iOtherPortalNode = iPortalNode + 1; iOtherPortalNode < navArea.Portals.Count; iOtherPortalNode++)
                         {
+#if o
                             otherPortalNode = navArea.Portals[iOtherPortalNode]; // as TNode;
 
                             //D.WriteLine("    Links to " + otherPortalNode.ID);
 
                             portalNode.LinkTo(otherPortalNode, navArea);
+#else
+                            portalNode.LinkTo(navArea.Portals[iOtherPortalNode], navArea);
+#endif
                         }
                     }
                 }
             }
+#if o
             //D.WriteLine("====================================\n");
+#endif
             #endregion
 
             #region    -- Debug / visuals for links
+#if o
             //D.WriteLine("========== Portals' Links ==========");
             Xna.Vector3 linkLineShift = new Xna.Vector3(2f, 2f, 0f);
             foreach (var navAreaa in NavAreas)
@@ -624,6 +692,7 @@ namespace FRBNavMesh
             }
             sb.AppendLine("--------------");
             D.WriteLine(sb.ToString());*/
+#endif
             #endregion -- Debug visuals END
         }
 
@@ -635,7 +704,7 @@ namespace FRBNavMesh
         /// <remarks>
         /// Algorithm source: http://stackoverflow.com/a/17152247
         /// </remarks>
-        private SimpleLine _GetSegmentOverlap(SimpleLine line1, SimpleLine line2, bool horisontal, bool swapStartEnd) 
+        private SimpleLine _GetSegmentOverlap(SimpleLine line1, SimpleLine line2, bool horisontal, bool swapStartEnd)
         {
             var pointsOfLines = new RLineAndPoint[]
             {
@@ -695,7 +764,7 @@ namespace FRBNavMesh
             return new SimpleLine(line.End, line.Start);
         }
 
-        #region    --- Debug permanent
+        #region    -- Debug permanent
         private void _DrawDebugVisualForPortal(double startX, double startY, double endX, double endY)
         {
             Debug.ShowLine(startX, startY, endX, endY, Color.Yellow);
@@ -705,6 +774,8 @@ namespace FRBNavMesh
             circle.X = (float)startX;
             circle.Y = (float)startY;
         }
-        #endregion --- Debug permanent END
+        #endregion -- Debug permanent END 
+
+        #endregion --- Methods END
     }
 }

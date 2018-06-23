@@ -230,7 +230,7 @@ namespace FRBNavMesh
 
             return node;
         }
-        
+#if DEBUG  
         /// <summary></summary>
         /// <param name="position">World position of this fake Node.</param>
         /// <param name="availablePortals">Portals leading out of NavArea this fake Node is positioned in.</param>
@@ -248,7 +248,7 @@ namespace FRBNavMesh
 
             return node;
         }
-        
+#endif
         /// <summary>
         /// - Create "fake" Portal Node in the "middle" of NavArea.
         /// - Tell all Portal Nodes in containing NavArea to link (one way) to the new fake Node.

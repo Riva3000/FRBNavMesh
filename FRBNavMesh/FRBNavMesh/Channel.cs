@@ -8,10 +8,16 @@ namespace FRBNavMesh
 {
     internal class Channel
     {
-        private class Portal
+        private struct Portal
         {
-            public Point Left;
-            public Point Right;
+            public readonly Point Left;
+            public readonly Point Right;
+
+            public Portal(Point left, Point right)
+            {
+                Left = left;
+                Right = right;
+            }
         }
 
         private List<Portal> _Portals;
@@ -29,15 +35,16 @@ namespace FRBNavMesh
 
 
 
-        public void Add(Point p1, Point? p2 = null)
+        public void Add(Point leftPoint, Point? rightPoint = null)
         {
-            if (!p2.HasValue) p2 = p1;
+            if (!rightPoint.HasValue) rightPoint = leftPoint;
+
             _Portals.Add(
                 new Portal
-                {
-                    Left = p1,
-                    Right = p2.Value
-                }
+                (
+                    leftPoint,
+                    rightPoint.Value
+                )
             );
         }
 

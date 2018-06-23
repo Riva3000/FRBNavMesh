@@ -11,7 +11,7 @@ using FlatRedBall.TileGraphics;
 
 namespace FRBNavMesh
 {
-    public static class TiledExtensions
+    public class TiledExtensions
     {
         /// <summary>
         /// Load a navmesh from Tiled and switch it to be the current navmesh. 

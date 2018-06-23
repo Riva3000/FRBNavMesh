@@ -71,11 +71,6 @@ namespace TestBed.Screens
             mLine2.Color = tranpColor;
             mLine3.Color = tranpColor;*/
 
-            //_Debug_SlowLine( new SimpleLine(-200f, 200f, 200f, -200f), Color.Red );
-
-            /*var aaRect = new AxisAlignedRectangle { Width = 10f, Height = 10f, X = 100f, Y = 100f };
-            Diag.Msg($"aaRect .Top: {aaRect.Top} .Left: {aaRect.Left}");*/
-
             Text textObj;
             foreach (var navArea in _NavMesh.NavAreas)
             {
@@ -92,19 +87,9 @@ namespace TestBed.Screens
             {
                 if (Cmn.IsMouseInsideWindow())
                 {
-                    //var mouseWorldPos = new Xna.Vector2(InputManager.Mouse.WorldXAt(0), InputManager.Mouse.WorldYAt(0));
-
-                    /*_DbgPathfindingGoal.X = mouseWorldPos.X;
-                    _DbgPathfindingGoal.Y = mouseWorldPos.Y;
-                    _DbgPathfindingGoal.Visible = true;
-                    PatfindingTestCharacterInstance.SetMovementGoal(mouseWorldPos);*/
-
-                    //Debug.WriteLine(" ---------------------------- TargetCharacter moved");
-
-                    //_PlayerOneCharacter.X = InputManager.Mouse.WorldXAt(0);
-                    //_PlayerOneCharacter.Y = InputManager.Mouse.WorldYAt(0);
-
-                    if (InputManager.Keyboard.KeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) || InputManager.Keyboard.KeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift))
+                    if ( InputManager.Keyboard.KeyDown(Microsoft.Xna.Framework.Input.Keys.LeftShift) 
+                         || 
+                         InputManager.Keyboard.KeyDown(Microsoft.Xna.Framework.Input.Keys.RightShift) )
                     {
                         _SetGoal(InputManager.Mouse.WorldXAt(0), InputManager.Mouse.WorldYAt(0));
                     }
@@ -252,7 +237,7 @@ namespace TestBed.Screens
             }
         }
 
-        private void _Debug_SlowLine(SimpleLine line, Color color)
+        private void _Debug_ShowLine(SimpleLine line, Color color)
         {
             var visLine = ShapeManager.AddLine();
             visLine.SetFromAbsoluteEndpoints(new Point3D(line.Start.X, line.Start.Y), new Point3D(line.End.X, line.End.Y));

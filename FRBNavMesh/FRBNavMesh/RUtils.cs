@@ -6,7 +6,7 @@ using System.Text;
 
 namespace FRBNavMesh
 {
-    static class RUtils
+    internal class RUtils
     {
         public static double Angle(ref Point point1, ref Point point2)
         {
@@ -63,7 +63,5 @@ namespace FRBNavMesh
                 return v;
             }
         }
-
-
     }
 }
