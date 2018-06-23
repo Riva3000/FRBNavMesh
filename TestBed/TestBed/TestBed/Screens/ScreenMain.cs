@@ -22,7 +22,7 @@ namespace TestBed.Screens
 {
 	public partial class ScreenMain
 	{
-        NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link> _NavMesh;
+        NavMesh<FRBNavMesh.PortalNode, FRBNavMesh.Link> _NavMesh;
 
         Point _StartPos;
         Point _GoalPos;
@@ -53,7 +53,7 @@ namespace TestBed.Screens
                 textObj.HorizontalAlignment = HorizontalAlignment.Center;
             }*/
 
-            _NavMesh = new NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link>( RectsList );
+            _NavMesh = new NavMesh<FRBNavMesh.PortalNode, FRBNavMesh.Link>( RectsList );
 
             _StartMarker = new Entities.MarkerCross();
             _GoalMarker = new Entities.MarkerCross { Color = Color.Green, Visible = false };
@@ -155,7 +155,7 @@ namespace TestBed.Screens
         private void _FindAndShowPath()
         {
             // -- Find path
-            List<FRBNavMesh.PositionedNode> nodePath;
+            List<FRBNavMesh.PortalNode> nodePath;
             var pointsPath = _NavMesh.FindPath(_StartPos, _GoalPos, out nodePath);
 
 
@@ -168,7 +168,7 @@ namespace TestBed.Screens
             if (nodePath != null)
             {
                 foreach (var node in nodePath)
-                    node.ParentNavArea.Polygon.Color = Color.SkyBlue;
+                    node.ParentNavArea1.Polygon.Color = Color.SkyBlue;
             }
             
             // - Node Path Lines

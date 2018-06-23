@@ -23,7 +23,7 @@ namespace FRBNavMesh
         /// shrunk around obstacles (a.k.a the amount obstacles have been expanded)</param>
         /// <returns></returns>
         public static NavMesh<TNode, TLink> BuildNavMeshFromTiled<TNode, TLink>(LayeredTileMap tilemap, string objectLayerName /*, int meshShrinkAmount = 0*/)
-            where TNode : PositionedNodeBase<TLink, TNode>, new()
+            where TNode : PortalNodeBase<TLink, TNode>, new()
             where TLink : LinkBase<TLink, TNode>, new()
         {
             // Load up the object layer

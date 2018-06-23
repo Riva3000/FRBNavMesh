@@ -5,16 +5,14 @@ using System.Text;
 
 namespace FRBNavMesh
 {
-    #region XML Docs
     /// <summary>
     /// Represents a one-way const-including path to a PositionedNode.
     /// </summary>
-    #endregion
     public abstract class LinkBase<TLink, TNode> : IEquatable<TLink>
         where TLink : LinkBase<TLink, TNode>, new()
-        where TNode : PositionedNodeBase<TLink, TNode>, new()
+        where TNode : PortalNodeBase<TLink, TNode>, new()
     {
-        #region Properties
+        #region --- Properties
         protected bool mActive;
         public bool Active
         {
@@ -23,8 +21,8 @@ namespace FRBNavMesh
         }
 
         protected float mCost;
-         /// <summary>
-        /// The cost to travel the link.
+        /// <summary>
+        /// The cost to travel the link to it's destination.
         /// </summary>
         /// <remarks>
         /// This is by default the distance to travel; however it can manually
@@ -53,31 +51,17 @@ namespace FRBNavMesh
             get { return mPortal; }
             set { mPortal = value; }
         }
-        #endregion
+        #endregion --- Properties END
 
 
 
-        #region Methods
 
-        /*
-        public Link()
-        {
-
-        }
-        
-        #region XML Docs
         /// <summary>
         /// Creates a new Link.
         /// </summary>
         /// <param name="nodeLinkingTo">The node to link to.</param>
         /// <param name="cost">The cost to travel the link.</param>
-        #endregion
-        public Link(TNode nodeLinkingTo, float cost)
-        {
-            mNodeLinkingTo = nodeLinkingTo;
-            mCost = cost;
-            mActive = true; 
-        }*/
+        /// <param name="portal">Portal line facing from parent PortalNode to destination node (for Channel construction).</param>
         public static TLink Create(TNode nodeLinkingTo, float cost, SimpleLine portal)
         {
             return new TLink
@@ -89,6 +73,11 @@ namespace FRBNavMesh
             };
         }
 
+
+
+
+        #region --- Methods
+
         public override string ToString()
         {
             if (NodeLinkingTo == null)
@@ -98,25 +87,15 @@ namespace FRBNavMesh
                 return Cost + " " + NodeLinkingTo.ID;
         }
 
-        #endregion
-
-
-        #region IEquatable<Link> Members
-
-        /*bool IEquatable<Link>.Equals(Link<TPositionedNode> other)
-        {
-            return this == other;
-        }
-
-        bool IEquatable<ILink>.Equals(Link<TPositionedNode> other)
-        {
-            return this == other;
-        }*/
+        // - IEquatable implementation
         public bool Equals(TLink other)
         {
             return this == other;
         }
 
-        #endregion
+        #endregion --- Methods END
+
+
+        
     }
 }

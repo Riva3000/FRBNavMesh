@@ -20,13 +20,13 @@ namespace TestBed.Screens
 {
 	public partial class ScreenOverlaps
 	{
-        NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link> _NavMesh;
+        NavMesh<FRBNavMesh.PortalNode, FRBNavMesh.Link> _NavMesh;
 
 
 
 		void CustomInitialize()
 		{
-            _NavMesh = new NavMesh<FRBNavMesh.PositionedNode, FRBNavMesh.Link>( RectsList );
+            _NavMesh = new NavMesh<FRBNavMesh.PortalNode, FRBNavMesh.Link>( RectsList );
 
 		}
 

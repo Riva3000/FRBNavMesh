@@ -1,4 +1,5 @@
 ﻿//#define RemovedForTesting
+#define o // if defined, classes methods write debug info into debug output
 
 using FlatRedBall.Math.Geometry;
 using System;
@@ -26,35 +27,40 @@ namespace FRBNavMesh
     * visualizing paths and visualizing the individual polygons. Some internal terminology usage:
     * 
     * - neighbor: a polygon that shares part of an edge with another polygon
-    * - portal: when two neighbor's have edges that overlap, the portal is the overlapping line segment
+    * - portal / portal node: when two neighbor's have edges that overlap, the portal is the overlapping line segment
     * - channel: the path of polygons from starting point to end point
     * - pull the string: run the funnel algorithm on the channel so that the path hugs the edges of the
     *   channel. Equivalent to having a string snaking through a hallway and then pulling it taut.
     */
 
-    public class RLineAndPoint
+    public struct RLineAndPoint
     {
-        public SimpleLine line;
-        public Point point;
+        public SimpleLine Line;
+        public Point Point;
+
+        public RLineAndPoint(SimpleLine line, Point point)
+        {
+            Line = line;
+            Point = point;
+        }
     }
 
-    /// <summary>
-    /// R: Almost FIN
-    /// </summary>
     public class NavMesh<TNode, TLink>
-        where TNode : PositionedNodeBase<TLink, TNode>, new()
+        where TNode : PortalNodeBase<TLink, TNode>, new()
         where TLink : LinkBase<TLink, TNode>, new()
     {
-        public readonly List< NavArea<TNode, TLink> > NavAreas;
+        #region    --- Vars
+        public readonly List<NavArea<TNode, TLink>> NavAreas;
         public readonly List<TNode> PortalNodes;
 
-        #region    -- A*
+        #region    -- For A*
         // This reduces memory allocation during runtime and also reduces the argument list size
         protected List<TNode> _ClosedList = new List<TNode>(30);
         protected List<TNode> _OpenList = new List<TNode>(30);
 
         protected float mShortestPath;
-        #endregion -- A* END
+        #endregion -- For A* END 
+        #endregion --- Vars END
 
 
 
@@ -86,80 +92,24 @@ namespace FRBNavMesh
 
 
 
-        /*
-        * Find a path from the start point to the end point using this nav mesh.
-        *
-        * @param {Phaser.Point} startPoint
-        * @param {Phaser.Point} endPoint
-        * @param {object} [drawOptions={}] Options for controlling debug drawing
-        * @param {boolean} [drawOptions.drawPolyPath=false] Whether or not to visualize the path
-        * through the polygons - e.g. the path that astar found.
-        * @param {boolean} [drawOptions.drawFinalPath=false] Whether or not to visualize the path
-        * through the path that was returned.
-        * @returns {Phaser.Point[]|null} An array of points if a path is found, or null if no path
-        *
-        * @memberof NavMesh
-        */
         /// <summary>Find a path from the start point to the end point using this nav mesh.</summary>
         /// <param name="startPoint"></param>
         /// <param name="endPoint"></param>
         /// <param name="drawPolyPath">Whether or not to visualize the path through the polygons - e.g. the path that astar found.</param>
         /// <param name="drawFinalPath">Whether or not to visualize the path through the path that was returned.</param>
         /// <returns>An array of points and nodes if a path is found, or nulls if no path</returns>
-        public List<Point> FindPath(Point startPoint, Point endPoint, out List<TNode> nodesPath, bool drawPolyPath = false, bool drawFinalPath = false)
+        public List<Point> FindPath(Point startPoint, Point endPoint, out List<TNode> portalNodesPath
+            /*, bool drawPolyPath = false, bool drawFinalPath = false*/)
         {
-#if true
             #region    --- Find the closest poly for the starting and ending point
             NavArea<TNode, TLink> startArea = FindNavRectFromPoint(ref startPoint);
             NavArea<TNode, TLink> endArea = FindNavRectFromPoint(ref endPoint);
 
-            #region    If the start point wasn't inside a polygon, run a more liberal check that allows a point
-            /*
-                // If the start point wasn't inside a polygon, run a more liberal check that allows a point
-                // to be within meshShrinkAmount radius of a polygon
-                if (!startPoly && this._meshShrinkAmount > 0)
-                {
-                    for (const navPoly of this._navPolygons) 
-                    {
-                        // Check if point is within bounding circle to avoid extra projection calculations
-                        r = navPoly.boundingRadius + this._meshShrinkAmount;
-                        d = navPoly.centroid.distance(startPoint);
-                        if (d <= r) {
-                            // Check if projected point is within range of a polgyon and is closer than the
-                            // previous point
-                            const { distance } = this._projectPointToPolygon(startPoint, navPoly);
-                            if (distance <= this._meshShrinkAmount && distance < startDistance) {
-                                startPoly = navPoly;
-                                startDistance = distance;
-                            }
-                        }
-                    }
-                }
-                */
-
-            /*
-            // Same check as above, but for the end point
-            if (!endPoly && this._meshShrinkAmount > 0) {
-                for (const navPoly of this._navPolygons) {
-                    r = navPoly.boundingRadius + this._meshShrinkAmount;
-                    d = navPoly.centroid.distance(endPoint);
-                    if (d <= r) {
-                        const { distance } = this._projectPointToPolygon(endPoint, navPoly);
-                        if (distance <= this._meshShrinkAmount && distance < endDistance) {
-                            endPoly = navPoly;
-                            endDistance = distance;
-                        }
-                    }
-                }
-            }
-            */
-            #endregion If the start point wasn't inside a polygon, run a more liberal check that allows a point END
-
             // No matching polygons locations for the start or end, so no path found
-            // R: = start or end point not on nav mesh
+            // = start or end point not on nav mesh
             if (startArea == null || endArea == null)
             {
-                nodesPath = null;
+                portalNodesPath = null;
                 return null;
             }
 
@@ -168,7 +118,7 @@ namespace FRBNavMesh
             {
                 List<Point> pointsPath = new List<Point> { startPoint, endPoint };
                 //if (drawFinalPath) this.debugDrawPath(phaserPath, 0xffd900, 10);
-                nodesPath = null; // not traversing any Portal Nodes
+                portalNodesPath = null; // not traversing any Portal Nodes
                 return pointsPath;
             }
             #endregion --- Find the closest poly for the starting and ending point END
@@ -177,22 +127,18 @@ namespace FRBNavMesh
 
             #region    --- A* search
             // --- Search!
-            /*NavPoly[] astarPath = JavasciptAstar.Astar.search(
-                                        this._Graph, startPoly, endPoly,
-                                        new JavasciptAstar.Astar.Options<NavPoly> { heuristic = this._Graph.navHeuristic }
-                                  );*/
-            nodesPath = new List<TNode>();
+            portalNodesPath = new List<TNode>();
             GetPath(
-                PositionedNodeBase<TLink, TNode>.CreateFakeNodeDebug(ref startPoint, startArea.Portals, -1, false, startArea),
-                PositionedNodeBase<TLink, TNode>.CreateFakeNodeDebug(ref endPoint, endArea.Portals, endArea.ID, true, endArea), 
-                nodesPath
+                PortalNodeBase<TLink, TNode>.CreateFakeNodeDebug(ref startPoint, startArea.Portals, false, startArea),
+                PortalNodeBase<TLink, TNode>.CreateFakeNodeDebug(ref endPoint, endArea.Portals, true, endArea), 
+                portalNodesPath
             );
 
-            if (nodesPath.Count == 0)
+            if (portalNodesPath.Count == 0)
             {
                 // While the start and end polygons may be valid, no path between them
 
-                nodesPath = null;
+                portalNodesPath = null;
                 return null;
             }
             #endregion --- A* search END
@@ -203,7 +149,7 @@ namespace FRBNavMesh
             // We have a path, so now time for the funnel algorithm
             D.WriteLine("======== Path search ========");
             D.WriteLine("  --- Path ---");
-            foreach (var pathNode in nodesPath)
+            foreach (var pathNode in portalNodesPath)
             {
                 D.WriteLine("    " + pathNode.ID);
             }
@@ -212,27 +158,18 @@ namespace FRBNavMesh
             channel.Add(startPoint);
 
             SimpleLine portal;
-            int countLimit = nodesPath.Count - 1;
+            int countLimit = portalNodesPath.Count - 1;
             TNode pathPortalNode;
             TNode nextPathPortalNode;
             for (int i = 1; i < countLimit; i++) // skipping first Node - I don't need it's Links - I don't need their Portals
             {
-                pathPortalNode = nodesPath[i];
-                nextPathPortalNode = nodesPath[i + 1];
+                pathPortalNode = portalNodesPath[i];
+                nextPathPortalNode = portalNodesPath[i + 1];
 
                 D.WriteLine($"    pathPortalNode: {pathPortalNode.ID} and pathPortalNode: {nextPathPortalNode.ID}");
 
                 // Find the portal
                 portal = null;
-                /*SimpleLine portal = null;
-                for (int j = 0; j < navPolygon.Neighbors.Count; j++)
-                {
-                    if (navPolygon.Neighbors[j].Id == nextNavPolygon.Id)
-                    {
-                        portal = navPolygon.Portals[j];
-                    }
-                }*/
-                //nextNavPolygon.mParentNode
                 foreach (var link in pathPortalNode.Links)
                 {
                     //if ( link.NodeLinkingTo.ReferenceEquals(nextPathPortalNode) )
@@ -258,15 +195,15 @@ namespace FRBNavMesh
             // Pull a string along the channel to run the funnel
             channel.StringPull();
 
-            PositionedNodeBase<TLink, TNode>.CleanupFakeEndNode(endArea.Portals);
+            PortalNodeBase<TLink, TNode>.CleanupFakeEndNodeLinks(endArea.Portals);
 
             // Clone path, excluding duplicates
             Point? lastPoint = null;
             List<Point> finalPointsPath = new List<Point>();
-            foreach (var p in channel.Path)
+            foreach (var point in channel.Path)
             {
                 //var newPoint = p.clone();
-                var newPoint = p;
+                var newPoint = point;
                 //if (!lastPoint || !newPoint.equals(lastPoint)) 
                 if (lastPoint.HasValue == false || newPoint != lastPoint)
                     finalPointsPath.Add(newPoint);
@@ -275,10 +212,6 @@ namespace FRBNavMesh
 
             return finalPointsPath;
             #endregion --- Funnel algorithm END
-#else
-            nodesPath = null;
-            return null;
-#endif
         }
 
         /// <summary>Goes through all Nodes and ties to find Node which rect the point is inside of.</summary>
@@ -459,8 +392,6 @@ namespace FRBNavMesh
         }
         #endregion -- A* END
 
-
-
         private void _CalculateNeighbors()
         {
             D.WriteLine(" * NavMesh._CalculateNeighbors()");
@@ -587,7 +518,7 @@ namespace FRBNavMesh
                     {
                         // Found portal between 2 NavAreas
                         // - have to add portal Node
-                        portalNode = PositionedNodeBase<TLink, TNode>.Create(portalId, navArea, otherNavArea, portal);
+                        portalNode = PortalNodeBase<TLink, TNode>.Create(portalId, navArea, otherNavArea, portal);
                         portalId++;
                         //
                         // - have to link this portal node to all other Portal Nodes in both this and other NavArea
@@ -696,16 +627,6 @@ namespace FRBNavMesh
             #endregion -- Debug visuals END
         }
 
-        private void _DrawDebugVisualForPortal(double startX, double startY, double endX, double endY)
-        {
-            Debug.ShowLine(startX, startY, endX, endY, Color.Yellow);
-            var circle = ShapeManager.AddCircle();
-            circle.Radius = 3f;
-            circle.Color = Color.Yellow;
-            circle.X = (float)startX;
-            circle.Y = (float)startY;
-        }
-
         // v4 phaser-navmesh updated
         /// <summary>Check two collinear line segments to see if they overlap by sorting the points.</summary>
         /// <param name="line1">Polygon's edge</param>
@@ -718,10 +639,10 @@ namespace FRBNavMesh
         {
             var pointsOfLines = new RLineAndPoint[]
             {
-                new RLineAndPoint { line = line1, point = line1.Start },
-                new RLineAndPoint { line = line1, point = line1.End },
-                new RLineAndPoint { line = line2, point = line2.Start },
-                new RLineAndPoint { line = line2, point = line2.End }
+                new RLineAndPoint( line1, line1.Start ),
+                new RLineAndPoint( line1, line1.End ),
+                new RLineAndPoint( line2, line2.Start ),
+                new RLineAndPoint( line2, line2.End )
             };
 
             if (horisontal)
@@ -731,8 +652,8 @@ namespace FRBNavMesh
                     (a, b) =>
                     {
                         // If lines have same Y, sort by X
-                        if (a.point.X < b.point.X) return -1;
-                        else if (a.point.X > b.point.X) return 1;
+                        if (a.Point.X < b.Point.X) return -1;
+                        else if (a.Point.X > b.Point.X) return 1;
                         return 0;
                     }
                 );
@@ -744,17 +665,17 @@ namespace FRBNavMesh
                     (a, b) =>
                     {
                         // If lines have same X, sort by Y
-                        if (a.point.Y < b.point.Y) return -1;
-                        else if (a.point.Y > b.point.Y) return 1;
+                        if (a.Point.Y < b.Point.Y) return -1;
+                        else if (a.Point.Y > b.Point.Y) return 1;
                         return 0;
                     }
                 );
             }
             // If the first two points in the array come from the same line, no overlap
-            bool noOverlap = pointsOfLines[0].line == pointsOfLines[1].line;
+            bool noOverlap = pointsOfLines[0].Line == pointsOfLines[1].Line;
             // If the two middle points in the array are the same coordinates, then there is a
             // single point of overlap.
-            bool singlePointOverlap = pointsOfLines[1].point == pointsOfLines[2].point;
+            bool singlePointOverlap = pointsOfLines[1].Point == pointsOfLines[2].Point;
 
             if (noOverlap || singlePointOverlap)
             {
@@ -763,58 +684,10 @@ namespace FRBNavMesh
             else
             {
                 if (swapStartEnd)
-                    return new SimpleLine(pointsOfLines[2].point, pointsOfLines[1].point);
+                    return new SimpleLine(ref pointsOfLines[2].Point, ref pointsOfLines[1].Point);
                 else
-                    return new SimpleLine(pointsOfLines[1].point, pointsOfLines[2].point);
+                    return new SimpleLine(ref pointsOfLines[1].Point, ref pointsOfLines[2].Point);
             }
-        }
-
-        /*/// <summary>Project a point onto a polygon in the shortest distance possible.</summary>
-        /// <param name="point">The point to project</param>
-        /// <param name="navPoly">The navigation polygon to test against</param>
-        /// <returns></returns>
-        private Tuple<Point?, float> _ProjectPointToPolygon(Point point, NavPoly navPoly)
-        {
-            Point? closestProjection = null;
-            var closestDistance = float.MaxValue;
-            foreach (var edge in navPoly.Edges) {
-                var projectedPoint = this._ProjectPointToEdge(point, edge);
-                //var d = point.distance(projectedPoint);
-                var d = (float)RCommonFRB.Geometry.Distance(ref point, ref projectedPoint);
-                if (closestProjection == null || d < closestDistance) {
-                    closestDistance = d;
-                    closestProjection = projectedPoint;
-                }
-            }
-            return Tuple.Create(closestProjection, closestDistance);
-        }*/
-
-        /// <summary>Distance</summary>
-        /// <returns>Distance between two 2D points</returns>
-        private double _DistanceSquared(Point a, Point b) {
-            var dx = b.X - a.X;
-            var dy = b.Y - a.Y;
-            return dx * dx + dy * dy;
-        }
-
-        /// <summary>
-        /// Project a point onto a line segment
-        /// JS Source: http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment</summary>
-        /// </summary>
-        private Point _ProjectPointToEdge(Point point, SimpleLine line) {
-            Point a = line.Start;
-            Point b = line.End;
-            // Consider the parametric equation for the edge's line, p = a + t (b - a). We want to find
-            // where our point lies on the line by solving for t:
-            //  t = [(p-a) . (b-a)] / |b-a|^2
-            double l2 = this._DistanceSquared(a, b);
-            var t = ((point.X - a.X) * (b.X - a.X) + (point.Y - a.Y) * (b.Y - a.Y)) / l2;
-            // We clamp t from [0,1] to handle points outside the segment vw.
-            //t = Phaser.Math.clamp(t, 0, 1);
-            t = RUtils.Clamp(t, 0, 1);
-            // Project onto the segment
-            var p = new Point(a.X + t * (b.X - a.X), a.Y + t * (b.Y - a.Y));
-            return p;
         }
 
         public static SimpleLine _GetInvertedLine(SimpleLine line)
@@ -823,6 +696,15 @@ namespace FRBNavMesh
         }
 
         #region    --- Debug permanent
+        private void _DrawDebugVisualForPortal(double startX, double startY, double endX, double endY)
+        {
+            Debug.ShowLine(startX, startY, endX, endY, Color.Yellow);
+            var circle = ShapeManager.AddCircle();
+            circle.Radius = 3f;
+            circle.Color = Color.Yellow;
+            circle.X = (float)startX;
+            circle.Y = (float)startY;
+        }
         #endregion --- Debug permanent END
     }
 }

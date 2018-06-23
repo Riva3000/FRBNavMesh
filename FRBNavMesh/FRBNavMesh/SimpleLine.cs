@@ -13,21 +13,21 @@ namespace FRBNavMesh
         /// <param name="startY">The y coordinate of the start of the line.</param>
         /// <param name="endX">The x coordinate of the end of the line.</param>
         /// <param name="endY">The y coordinate of the end of the line.</param>
-        public SimpleLine(float startX, float startY, float endX, float endY)
+        public SimpleLine(double startX, double startY, double endX, double endY)
         {
             Start = new Point(startX, startY);
             End = new Point(endX, endY);
         }
 
         /// <summary></summary>
-        /// <param name="startX">The x coordinate of the start of the line.</param>
-        /// <param name="startY">The y coordinate of the start of the line.</param>
-        /// <param name="endX">The x coordinate of the end of the line.</param>
-        /// <param name="endY">The y coordinate of the end of the line.</param>
-        public SimpleLine(double startX, double startY, double endX, double endY)
+        /// <param name="start">Starting Point of line.</param>
+        /// <param name="end">End Point of line.</param>
+        public SimpleLine(ref Point start, ref Point end)
         {
-            Start = new Point(startX, startY);
-            End = new Point(endX, endY);
+            Start.X = start.X;
+            Start.Y = start.Y;
+            End.X = end.X;
+            End.Y = end.Y;
         }
 
         /// <summary></summary>

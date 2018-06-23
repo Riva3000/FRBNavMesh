@@ -18,18 +18,17 @@ namespace FRBNavMesh
         public List<Point> Path; // R: pts ?
 
 
+
+
+
         public Channel()
         {
             portals = new List<Portal>();
         }
 
 
-        /*
-        * @param {Phaser.Point} p1 
-        * @param {Phaser.Point} p2 
-        * 
-        * @memberof Channel
-        */
+
+
         public void Add(Point p1, Point? p2 = null)
         {
             if (!p2.HasValue) p2 = p1;

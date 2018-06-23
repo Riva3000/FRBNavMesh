@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace FRBNavMesh
 {
-    public class PositionedNode : PositionedNodeBase<Link, PositionedNode>
+    public class PortalNode : PortalNodeBase<Link, PortalNode>
     {
-        public bool CheckedAsMain;
-        public bool CheckedAsOther;
     }
 
-    public class Link : LinkBase<Link, PositionedNode>
+    public class Link : LinkBase<Link, PortalNode>
     {
     }
 }

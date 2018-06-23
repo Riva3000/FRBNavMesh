@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace FRBNavMesh
 {
     public class NavArea<TNode, TLink>
-        where TNode : PositionedNodeBase<TLink, TNode>, new()
+        where TNode : PortalNodeBase<TLink, TNode>, new()
         where TLink : LinkBase<TLink, TNode>, new()
     {
         public readonly AxisAlignedRectangle Polygon;

@@ -56,7 +56,7 @@
     <Compile Include="NavArea.cs" />
     <Compile Include="NavMesh.cs" />
     <Compile Include="SimpleLine.cs" />
-    <Compile Include="PositionedNodeBaseGeneric.cs" />
+    <Compile Include="PortalNodeBaseGeneric.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RUtils.cs" />
     <Compile Include="TileCollisions\CollidableListVsTileShapeCollectionRelationship.cs" />
