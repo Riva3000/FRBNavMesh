@@ -6,16 +6,16 @@ using System.Text;
 
 namespace FRBNavMesh
 {
-    class Portal
+    internal class Channel
     {
-        public Point left;
-        public Point right;
-    }
+        private class Portal
+        {
+            public Point Left;
+            public Point Right;
+        }
 
-    class Channel
-    {
-        public List<Portal> portals;
-        public List<Point> Path; // R: pts ?
+        private List<Portal> _Portals;
+        public List<Point> Path;
 
 
 
@@ -23,7 +23,7 @@ namespace FRBNavMesh
 
         public Channel()
         {
-            portals = new List<Portal>();
+            _Portals = new List<Portal>();
         }
 
 
@@ -32,18 +32,17 @@ namespace FRBNavMesh
         public void Add(Point p1, Point? p2 = null)
         {
             if (!p2.HasValue) p2 = p1;
-            this.portals.Add(
+            _Portals.Add(
                 new Portal
                 {
-                    left = p1,
-                    right = p2.Value
+                    Left = p1,
+                    Right = p2.Value
                 }
             );
         }
 
         public List<Point> StringPull()
         {
-            var portals_ = this.portals;
             var pts = new List<Point>();
             // Init scan state
             Point portalApex, portalLeft, portalRight;
@@ -51,18 +50,18 @@ namespace FRBNavMesh
             var leftIndex = 0;
             var rightIndex = 0;
 
-            portalApex = portals_[0].left;
-            portalLeft = portals_[0].left;
-            portalRight = portals_[0].right;
+            portalApex = _Portals[0].Left;
+            portalLeft = _Portals[0].Left;
+            portalRight = _Portals[0].Right;
 
             // Add start point.
             pts.Add(portalApex);
 
-            for (int i = 1; i < portals.Count; i++)
+            for (int i = 1; i < _Portals.Count; i++)
             {
                 // Find the next portal vertices
-                var left = portals[i].left;
-                var right = portals[i].right;
+                var left = _Portals[i].Left;
+                var right = _Portals[i].Right;
 
                 // Update right vertex.
                 if (Utils.triarea2(portalApex, portalRight, right) <= 0.0)
@@ -127,15 +126,15 @@ namespace FRBNavMesh
                 }
             }// for
 
-            if (pts.Count == 0 || pts[pts.Count - 1] != portals[portals.Count - 1].left)
+            if (pts.Count == 0 || pts[pts.Count - 1] != _Portals[_Portals.Count - 1].Left)
             {
                 // Append last point to path.
-                pts.Add(portals[portals.Count - 1].left);
+                pts.Add(_Portals[_Portals.Count - 1].Left);
             }
 
             this.Path = pts;
 
-            return pts; // List<Point> ?
+            return pts;
         }
     }
 }

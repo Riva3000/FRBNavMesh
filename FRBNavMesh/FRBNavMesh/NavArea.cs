@@ -13,7 +13,7 @@ namespace FRBNavMesh
     {
         public readonly AxisAlignedRectangle Polygon;
 
-        public readonly List< TNode > Portals;
+        public readonly List<TNode> Portals;
 
         public readonly int ID;
 
