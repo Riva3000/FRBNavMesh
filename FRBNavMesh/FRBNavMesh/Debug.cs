@@ -42,5 +42,20 @@ namespace FRBNavMesh
             visLine.Color = color;
             //visLine.Visible = true;
         }
+
+        private static readonly Vector3 _TEXT_POS_SHIFT = new Vector3(1f, 1f, 20f);
+        public static void ShowText(ref Vector3 position, string text)
+        {
+            var textObj = FlatRedBall.Graphics.TextManager.AddText(text);
+            textObj.HorizontalAlignment = FlatRedBall.Graphics.HorizontalAlignment.Left;
+            textObj.VerticalAlignment = FlatRedBall.Graphics.VerticalAlignment.Top;
+            textObj.Position = position + _TEXT_POS_SHIFT;
+        }
+
+        // ------- Temp debug --------
+        private void Tests()
+        {
+            //object.ReferenceEquals
+        }
     }
 }

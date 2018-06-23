@@ -383,19 +383,19 @@ namespace TestBed.Screens
             RectsList.Add(Rect4InnerTouching);
             if (Rect4InnerTouching.Parent == null)
             {
-                Rect4InnerTouching.X = 60f;
+                Rect4InnerTouching.X = 70f;
             }
             else
             {
-                Rect4InnerTouching.RelativeX = 60f;
+                Rect4InnerTouching.RelativeX = 70f;
             }
             if (Rect4InnerTouching.Parent == null)
             {
-                Rect4InnerTouching.Y = 55f;
+                Rect4InnerTouching.Y = 40f;
             }
             else
             {
-                Rect4InnerTouching.RelativeY = 55f;
+                Rect4InnerTouching.RelativeY = 40f;
             }
             if (Rect4InnerTouching.Parent == null)
             {
@@ -405,8 +405,8 @@ namespace TestBed.Screens
             {
                 Rect4InnerTouching.RelativeZ = 10f;
             }
-            Rect4InnerTouching.Width = 20f;
-            Rect4InnerTouching.Height = 30f;
+            Rect4InnerTouching.Width = 40f;
+            Rect4InnerTouching.Height = 60f;
             Rect4InnerTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
             RectsList.Add(Rect5InnerTouching);
             if (Rect5InnerTouching.Parent == null)
@@ -699,19 +699,19 @@ namespace TestBed.Screens
             Rect3InnerTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
             if (Rect4InnerTouching.Parent == null)
             {
-                Rect4InnerTouching.X = 60f;
+                Rect4InnerTouching.X = 70f;
             }
             else
             {
-                Rect4InnerTouching.RelativeX = 60f;
+                Rect4InnerTouching.RelativeX = 70f;
             }
             if (Rect4InnerTouching.Parent == null)
             {
-                Rect4InnerTouching.Y = 55f;
+                Rect4InnerTouching.Y = 40f;
             }
             else
             {
-                Rect4InnerTouching.RelativeY = 55f;
+                Rect4InnerTouching.RelativeY = 40f;
             }
             if (Rect4InnerTouching.Parent == null)
             {
@@ -721,8 +721,8 @@ namespace TestBed.Screens
             {
                 Rect4InnerTouching.RelativeZ = 10f;
             }
-            Rect4InnerTouching.Width = 20f;
-            Rect4InnerTouching.Height = 30f;
+            Rect4InnerTouching.Width = 40f;
+            Rect4InnerTouching.Height = 60f;
             Rect4InnerTouching.Color = Microsoft.Xna.Framework.Color.Salmon;
             if (Rect5InnerTouching.Parent == null)
             {

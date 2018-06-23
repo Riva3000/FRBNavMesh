@@ -75,6 +75,15 @@ namespace TestBed.Screens
 
             /*var aaRect = new AxisAlignedRectangle { Width = 10f, Height = 10f, X = 100f, Y = 100f };
             Diag.Msg($"aaRect .Top: {aaRect.Top} .Left: {aaRect.Left}");*/
+
+            Text textObj;
+            foreach (var navArea in _NavMesh.NavAreas)
+            {
+                textObj = TextManager.AddText($"{navArea.ID} [{navArea.Portals.Count}]");
+                textObj.HorizontalAlignment = HorizontalAlignment.Center;
+                textObj.X = navArea.Polygon.X;
+                textObj.Y = navArea.Polygon.Y;
+            }
         }
 
 		void CustomActivity(bool firstTimeCalled)
@@ -152,14 +161,14 @@ namespace TestBed.Screens
 
             // -- Debug visuals
             // NavPolys
-            foreach (var node in _NavMesh.PortalNodes)
+            foreach (var navArea in _NavMesh.NavAreas)
             {
-                node.Polygon.Color = Color.Salmon;
+                navArea.Polygon.Color = Color.Salmon;
             }
             if (nodePath != null)
             {
                 foreach (var node in nodePath)
-                    node.Polygon.Color = Color.SkyBlue;
+                    node.ParentNavArea.Polygon.Color = Color.SkyBlue;
             }
             
             // - Node Path Lines
@@ -167,7 +176,7 @@ namespace TestBed.Screens
             Line nodePathLine;
             int i = 0;
 
-            if (pointsPath == null) // no path found
+            if (nodePath == null) // no path found
             {
                 nodePathLinesCount = 0;
             }

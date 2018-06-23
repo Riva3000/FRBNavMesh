@@ -13,10 +13,9 @@ namespace FRBNavMesh
     {
         public readonly AxisAlignedRectangle Polygon;
 
+        public readonly List< TNode > Portals;
 
-        public readonly List<PositionedNodeBase<TLink, TNode>> Portals;
-
-        public readonly int Id;
+        public readonly int ID;
 
         //protected SimpleLine[] mEdges;
         //protected SimpleLine mLeftEdge
@@ -36,9 +35,9 @@ namespace FRBNavMesh
 
         public NavArea(AxisAlignedRectangle polygon, int id)
         {
-            Portals = new List<PositionedNodeBase<TLink, TNode>>();
+            Portals = new List< TNode >();
 
-            Id = id;
+            ID = id;
             Polygon = polygon;
 
             _CalculateEdges();

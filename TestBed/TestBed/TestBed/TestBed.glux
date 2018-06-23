@@ -235,11 +235,11 @@
             <NamedObjectSave>
               <CustomProperty>
                 <Member>X</Member>
-                <ValueAsFloat>60</ValueAsFloat>
+                <ValueAsFloat>70</ValueAsFloat>
               </CustomProperty>
               <CustomProperty>
                 <Member>Y</Member>
-                <ValueAsFloat>55</ValueAsFloat>
+                <ValueAsFloat>40</ValueAsFloat>
               </CustomProperty>
               <CustomProperty>
                 <Type>float</Type>
@@ -249,12 +249,12 @@
               <CustomProperty>
                 <Type>float</Type>
                 <Member>Width</Member>
-                <ValueAsFloat>20</ValueAsFloat>
+                <ValueAsFloat>40</ValueAsFloat>
               </CustomProperty>
               <CustomProperty>
                 <Type>float</Type>
                 <Member>Height</Member>
-                <ValueAsFloat>30</ValueAsFloat>
+                <ValueAsFloat>60</ValueAsFloat>
               </CustomProperty>
               <CustomProperty>
                 <Type>Microsoft.Xna.Framework.Color</Type>

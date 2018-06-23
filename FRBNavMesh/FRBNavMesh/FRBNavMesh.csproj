@@ -93,6 +93,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Docs\Link system v2.ddd" />
     <None Include="Docs\AARects edge overlaps v2 clockvise.ddd" />
     <None Include="Docs\AARects edge overlaps.ddd" />
     <None Include="Docs\DataStructuresChart02 PortalNodes.ddd" />
