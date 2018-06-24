@@ -17,6 +17,12 @@ Implementation of Nav-mesh that uses axis-aligned rectangles for [FlatRedBall ga
 
 
 
+---
+
+Project doesn't (yet) implement any obstacle avoidance or flocking functionality.
+
+---
+
 This project uses modified version of A* implementation from [FlatRedBall](http://flatredball.com/).
 
 This project is inspired by [Phaser-Navmesh](https://github.com/mikewesthad/phaser-navmesh) javascript rects-based nav-mesh project for Phaser engine.
