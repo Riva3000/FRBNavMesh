@@ -1,5 +1,5 @@
 ### FlatRedBall NavMesh
-Implementation of Nav-mesh that uses axis-aligned rectangles for [FlatRedBall game framework](http://flatredball.com/).
+C# implementation of 2D Nav-mesh that uses axis-aligned rectangles for [FlatRedBall game framework](http://flatredball.com/).
 
 #### Usage
 1. Use your favorite way to include FRBNavMesh (project or dll) into your FlatRedBall game project.
@@ -19,7 +19,7 @@ Implementation of Nav-mesh that uses axis-aligned rectangles for [FlatRedBall ga
 
 ---
 
-Project doesn't (yet) implement any obstacle avoidance or flocking functionality.
+Project doesn't (yet) implement any dynamic obstacle avoidance or flocking functionality.
 
 ---
 
