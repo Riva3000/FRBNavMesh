@@ -13,10 +13,12 @@ using FlatRedBall.Math.Geometry;
 using FlatRedBall.Localization;
 
 using RCommonFRB;
+using RCommonFRB.VisualPrimitives;
 using FRBNavMesh;
 using Xna = Microsoft.Xna.Framework;
 using Color = Microsoft.Xna.Framework.Color;
 using FlatRedBall.Graphics;
+using System.Diagnostics;
 
 namespace TestBed.Screens
 {
@@ -33,10 +35,13 @@ namespace TestBed.Screens
 
         List<Line> _FinalPathLines;
         List<Line> _NodesPathLines;
+        List<RCommonFRB.VisualPrimitives.VisualRectangle> _VisualRects;
 
 
 		void CustomInitialize()
 		{
+            Camera.Main.BackgroundColor = Color.Gray;
+
             /*Circle circle;
             Text textObj;
             //Color color = Color.FromNonPremultiplied(100, )
@@ -56,20 +61,37 @@ namespace TestBed.Screens
             _NavMesh = new NavMesh<FRBNavMesh.PortalNode, FRBNavMesh.Link>( RectsList );
 
             _StartMarker = new Entities.MarkerCross();
-            _GoalMarker = new Entities.MarkerCross { Color = Color.Green, Visible = false };
+            _GoalMarker = new Entities.MarkerCross { Color = Color.LightGreen, Visible = false };
 
             _SetStart(-100f, -220f);
             _SetGoal(-100f, -220f);
 
-            _FinalPathLines = new List<Line>(30);
-            _NodesPathLines = new List<Line>(10);
 
             // -------------------- Debug & tests
-            /*// works
-            Color tranpColor = Color.FromNonPremultiplied(255, 255, 255, 128);
-            mLine1.Color = tranpColor;
-            mLine2.Color = tranpColor;
-            mLine3.Color = tranpColor;*/
+
+            _FinalPathLines = new List<Line>(30);
+            _NodesPathLines = new List<Line>(10);
+            _VisualRects = new List<VisualRectangle>(RectsList.Count);
+            AxisAlignedRectangle rect;
+            VisualRectangle visRect;
+            Color transpBlack = new Color(0, 0, 0, 128);
+            for (int i = 0; i < RectsList.Count; i++)
+            {
+                rect = RectsList[i];
+                rect.Visible = false;
+
+                visRect = new VisualRectangle(rect.Width, rect.Height, transpBlack, Color.Salmon);
+                visRect.Position.X = rect.Position.X;
+                visRect.Position.Y = rect.Position.Y;
+                visRect.Position.Z = 0f;
+
+                SpriteManager.AddDrawableBatch(visRect);
+            }
+
+            foreach (var portal in _NavMesh.PortalNodes)
+            {
+                _Debug_ShowLine( portal.GetPortalSideFor(portal.ParentNavArea1), Color.Yellow );
+            }
 
             Text textObj;
             foreach (var navArea in _NavMesh.NavAreas)
@@ -153,7 +175,10 @@ namespace TestBed.Screens
             if (nodePath != null)
             {
                 foreach (var node in nodePath)
+                {
                     node.ParentNavArea1.Polygon.Color = Color.SkyBlue;
+                    node.ParentNavArea2.Polygon.Color = Color.SkyBlue;
+                }
             }
             
             // - Node Path Lines
@@ -174,7 +199,7 @@ namespace TestBed.Screens
                 while (linesMissing > 0)
                 {
                     nodePathLine = ShapeManager.AddLine();
-                    nodePathLine.Color = Debug.NiceBlue; //Debug.Gray96;
+                    nodePathLine.Color = Dbg.NiceBlue; //Debug.Gray96;
                     _NodesPathLines.Add( nodePathLine );
                     linesMissing--;
                 }
@@ -243,6 +268,7 @@ namespace TestBed.Screens
             visLine.SetFromAbsoluteEndpoints(new Point3D(line.Start.X, line.Start.Y), new Point3D(line.End.X, line.End.Y));
             visLine.Color = color;
             visLine.Visible = true;
+            visLine.Z = 10f;
         }
 	}
 }

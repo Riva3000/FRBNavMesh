@@ -12,7 +12,6 @@ using FlatRedBall.Utilities;
 using Microsoft.Xna.Framework;
 using FlatRedBall.Math.Geometry;
 using Point = FlatRedBall.Math.Geometry.Point;
-using D = System.Diagnostics.Debug;
 
 namespace FRBNavMesh
 {
@@ -266,7 +265,7 @@ namespace FRBNavMesh
             float distanceBetweeNodes;
             foreach (var otherPortalNode in availablePortals)
             {
-                distanceBetweeNodes = (float)RCommonFRB.Geometry.Distance2D(ref fakePortalNode.Position, ref otherPortalNode.Position);
+                distanceBetweeNodes = (float)RUtils.Distance2D(ref fakePortalNode.Position, ref otherPortalNode.Position);
 
                 otherPortalNode.LinkToOneWay(
                             fakePortalNode,
@@ -290,7 +289,7 @@ namespace FRBNavMesh
             float distanceToTravel;
             foreach (var otherPortalNode in availablePortals)
             {
-                distanceToTravel = (float)RCommonFRB.Geometry.Distance2D(ref node.Position, ref otherPortalNode.Position);
+                distanceToTravel = (float)RUtils.Distance2D(ref node.Position, ref otherPortalNode.Position);
 
                 node._FakeLinkToOneWay( otherPortalNode, distanceToTravel );
             }

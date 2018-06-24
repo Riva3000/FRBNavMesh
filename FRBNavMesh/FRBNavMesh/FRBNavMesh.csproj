@@ -47,10 +47,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AStarState.cs" />
-    <Compile Include="Debug.cs" />
+    <Compile Include="Dbg.cs" />
     <Compile Include="Channel.cs" />
-    <Compile Include="ConversionTemp\Items.cs" />
-    <Compile Include="ConversionTemp\NotNeededException.cs" />
     <Compile Include="GenericsTests\SpecificNodeAndLink.cs" />
     <Compile Include="LinkBaseGeneric.cs" />
     <Compile Include="NavArea.cs" />
@@ -85,12 +83,6 @@
     <Compile Include="TileGraphics\Tileset.cs" />
     <Compile Include="TileGraphics\TilesetExtensionMethods.cs" />
     <Compile Include="Utils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\VisualStudio2015 Projects\RCommonFRB\RCommonFRB\RCommonFRB.csproj">
-      <Project>{99803d3c-8916-4fb7-8725-e0b13982e0d1}</Project>
-      <Name>RCommonFRB</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Docs\Link system v2.ddd" />

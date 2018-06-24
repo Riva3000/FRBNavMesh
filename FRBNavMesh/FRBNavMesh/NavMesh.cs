@@ -10,8 +10,6 @@ using System.Text;
 using Xna = Microsoft.Xna.Framework;
 using Color = Microsoft.Xna.Framework.Color;
 
-using RCommonFRB;
-
 using System.Diagnostics;
 using D = System.Diagnostics.Debug;
 using Microsoft.Xna.Framework.Graphics;
@@ -269,7 +267,7 @@ namespace FRBNavMesh
             {
                 r = navArea.Polygon.BoundingRadius;
                 // Start
-                d = RCommonFRB.Geometry.Distance2D(ref navArea.Polygon.Position, ref point);
+                d = RUtils.Distance2D(ref navArea.Polygon.Position, ref point);
                 if (d <= bestDistance && d <= r && navArea.Polygon.IsPointInside((float)point.X, (float)point.Y)) // @
                 {
                     containingNavArea = navArea;
@@ -446,7 +444,6 @@ namespace FRBNavMesh
             AxisAlignedRectangle navAreaPolygon;
             AxisAlignedRectangle otherNavAreaPolygon;
             TNode portalNode;
-            TNode otherPortalNode;
             SimpleLine portal;
             int portalId = 1;
             for (int i = 0; i < _NavAreas.Count; i++)
@@ -467,7 +464,7 @@ namespace FRBNavMesh
                     #region    - Check polygons distance
                     // Check if the other navpoly is within range to touch
                     // Distance between centers
-                    var distanceBetweenCenters = RCommonFRB.Geometry.Distance2D(ref navAreaPolygon.Position, ref otherNavAreaPolygon.Position);
+                    var distanceBetweenCenters = RUtils.Distance2D(ref navAreaPolygon.Position, ref otherNavAreaPolygon.Position);
                     // If Distance between centers is bigger than combined radii, they are not in range
                     // If Distance between centers is smaller or equal, they are in range (not necessarily touching)
                     if (distanceBetweenCenters >= navAreaPolygon.BoundingRadius + otherNavAreaPolygon.BoundingRadius)
@@ -590,6 +587,8 @@ namespace FRBNavMesh
                         //
 
                         //navArea.LinkTo(otherNavArea, portal);
+
+                        _PortalNodes.Add(portalNode);
 #if o
                         #region    -- Debug / visuals
                         Debug.ShowText(ref portalNode.Position, portalNode.ID.ToString());
@@ -620,8 +619,8 @@ namespace FRBNavMesh
             #region
             navArea = null;
             portalNode = null;
-            otherPortalNode = null;
 #if o
+            TNode otherPortalNode = null;
             //D.WriteLine("========== Portals' Linking ==========");
 #endif
             for (int i = 0; i < _NavAreas.Count; i++)
@@ -767,7 +766,7 @@ namespace FRBNavMesh
         #region    -- Debug permanent
         private void _DrawDebugVisualForPortal(double startX, double startY, double endX, double endY)
         {
-            Debug.ShowLine(startX, startY, endX, endY, Color.Yellow);
+            Dbg.ShowLine(startX, startY, endX, endY, Color.Yellow);
             var circle = ShapeManager.AddCircle();
             circle.Radius = 3f;
             circle.Color = Color.Yellow;

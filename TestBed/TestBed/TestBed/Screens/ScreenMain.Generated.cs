@@ -278,9 +278,11 @@ namespace TestBed.Screens
         {
             bool oldShapeManagerSuppressAdd = FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue;
             FlatRedBall.Math.Geometry.ShapeManager.SuppressAddingOnVisibilityTrue = true;
+            CenterH.Visible = false;
             CenterH.Color = Microsoft.Xna.Framework.Color.DarkBlue;
             FlatRedBall.Math.Geometry.Point[] CenterHPoints = new FlatRedBall.Math.Geometry.Point[] {new FlatRedBall.Math.Geometry.Point(-25, 0), new FlatRedBall.Math.Geometry.Point(25, 0) };
             CenterH.Points = CenterHPoints;
+            CenterV.Visible = false;
             CenterV.Color = Microsoft.Xna.Framework.Color.DarkBlue;
             FlatRedBall.Math.Geometry.Point[] CenterVPoints = new FlatRedBall.Math.Geometry.Point[] {new FlatRedBall.Math.Geometry.Point(0, 25), new FlatRedBall.Math.Geometry.Point(0, -25) };
             CenterV.Points = CenterVPoints;
@@ -603,7 +605,9 @@ namespace TestBed.Screens
             if (callOnContainedElements)
             {
             }
+            CenterH.Visible = false;
             CenterH.Color = Microsoft.Xna.Framework.Color.DarkBlue;
+            CenterV.Visible = false;
             CenterV.Color = Microsoft.Xna.Framework.Color.DarkBlue;
             if (Rect1Main.Parent == null)
             {

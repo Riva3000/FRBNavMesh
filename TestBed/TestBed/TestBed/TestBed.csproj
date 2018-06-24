@@ -95,6 +95,10 @@
     <Reference Include="mscorlib">
       <Private>False</Private>
     </Reference>
+    <Reference Include="RCommonFRB, Version=1.0.0.1, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Libs\RCommonFRB.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
@@ -221,10 +225,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\VisualStudio2015 Projects\RCommonFRB\RCommonFRB\RCommonFRB.csproj">
-      <Project>{99803d3c-8916-4fb7-8725-e0b13982e0d1}</Project>
-      <Name>RCommonFRB</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\FRBNavMesh\FRBNavMesh\FRBNavMesh.csproj">
       <Project>{1e168005-b952-42b1-90d6-c2ce87e28a2c}</Project>
       <Name>FRBNavMesh</Name>
